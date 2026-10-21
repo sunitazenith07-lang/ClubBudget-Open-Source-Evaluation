@@ -1,4 +1,5 @@
 import pytest
+from copy import deepcopy
 from models import new_account
 from service import calculate_points, apply_reward_event, flag_repeat_transactions
 
@@ -131,7 +132,7 @@ def test_unrecognized_or_declined_events_do_not_award_points(kind):
 @pytest.mark.parametrize("amount", [10000,20000,50000,100000,250000,1000000])
 def test_event_processing_does_not_mutate_input_account(amount):
     account = new_account("A")
-    before = {"points_balance":account["points_balance"],"processed_event_ids":list(account["processed_event_ids"]),"transactions":dict(account["transactions"]),"ledger":list(account["ledger"])}
+    before = deepcopy(account)
     apply_reward_event(account, {"event_id":"E","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
     assert account == before
 
