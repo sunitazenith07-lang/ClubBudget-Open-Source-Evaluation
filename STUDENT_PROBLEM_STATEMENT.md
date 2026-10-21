@@ -1,46 +1,43 @@
-# ClubBudget: Student Club Expense and Budget Management
+# RewardBook: Rewards Rules & Repeat-Transaction Alerts
 
-**Zenith School of AI | Open-Source Evaluation | Python 3.10+ | JSON | GitHub**
+**Track:** Fintech loyalty | **Time:** 24 hours | **Language:** Python 3.10+
 
-## Challenge
-ClubBudget tracks student-club expenses, categories, vendors, receipt references, approvals and budget limits. Understand the supplied Python application, fix three issue tickets announced by organisers at kick-off, implement reliable search/filtering, add one finance workflow feature, test your work and explain the decisions. Improve the existing code instead of rebuilding it.
+## Scenario
+A loyalty product awards points for eligible purchases. Promotions may add a bonus or cap. Purchases can later be refunded; duplicate transaction events must not award points twice. Operations also need explainable warnings for possible repeat same-account, same-day, same-amount transactions.
 
-## Start-up
-```bash
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-python -m main
-```
-Read README.md, models.py, service.py, fixtures.py, data/ and tests/test_contract.py. Create ARCHITECTURE.md with the project map, data model, numbered flow, storage design, simple diagram and three improvements grounded in the code.
+This is a fictional offline service, not any company's internal software. Use only the synthetic fixtures; do not connect to cards, banks or customers.
 
-## Mandatory work
-1. Reproduce and fix three organiser-provided issue tickets; add regression tests.
-2. Implement case-insensitive search with trimmed query text and combined category/status filters. Handle invalid filters, no results and empty data safely.
-3. Complete at least one option:
-   - Budget dashboard: show approved/paid spending and remaining budget by club/category.
-   - Approval safeguards: reject negative amounts and approvals that exceed applicable budget.
-   - Receipt audit: identify expenses missing receipt references and flag potential duplicate claims.
-4. Add tests and document at least five scenarios in TESTING.md. Update README.md and PROJECT_NOTES.md.
-5. Use focused branches and pull requests. Do not delete, skip, weaken or bypass tests.
+## Required behaviour
+1. Calculate points using integer arithmetic: `base_points = floor(amount_paise / 10000) * points_per_100_rupees`; `bonus_points = floor(base_points * (100 + bonus_percent) / 100)`; apply optional cap last.
+2. Reject invalid or negative amounts/rules. A cap of zero means zero points.
+3. Only captured purchases can earn points. Declined/pending/unknown event types must not.
+4. Process each `event_id` once, even if replayed.
+5. Reverse points proportionally on refunds using integer arithmetic; never reverse more than awarded and never allow a negative balance.
+6. Write an auditable ledger entry for each accepted event.
+7. Flag repeats by account, date and amount using the threshold; flags are for human review only and must not block or accuse customers.
+8. Handle empty input, missing IDs, unknown transactions and duplicate deliveries safely.
 
-## Test suite
-The public suite contains 110 visible checks. The untouched starter is expected to begin at 86 passing and 24 failing due to deliberate defects. The final evaluation adds 90 private checks, for 200 cases total. Private tests are not included in this public repo.
+## Kick-off tickets
+At kick-off organisers will share three concrete issue tickets from the project. Reproduce each issue, explain the root cause, fix it and add a regression test. Example defect classes: wrong rounding, cap-of-zero handling, duplicate event processing, or unsafe refunds.
 
-## Git workflow and submission
-Use fix/issue-<number>-<summary> for bug fixes and feature/<short-name> for features. Each pull request must include root cause, summary, issue reference, tests run and known limitations.
+## Submission
+Open a pull request against the original repository; do not merge it. Include tests and `REWARD_RULE_NOTES.md` with one worked points calculation, one partial-refund example, three edge cases, assumptions and limitations. Explain the root cause and tests in the PR.
 
-Submit your repo/fork and PR links, README.md, ARCHITECTURE.md, TESTING.md, PROJECT_NOTES.md, a summary of fixes/features and a two-minute demo. If AI tools are used, complete AI_USAGE.md with tool/model, purpose, verification performed, any shown credits/tokens (or "not available"), and one suggestion accepted, changed or rejected with a reason. Do not include secrets or private personal data. Be able to explain and modify your code during viva.
+## Optional stretch (choose at most one)
+- Export a CSV account statement.
+- Make the repeat threshold configurable.
+- Add a summary by transaction category.
 
-## Evaluation — 100 marks
+## Tests and CI
+Run `python -m pytest -q`. Initial visible failures are intentional only for incomplete starter behaviour; no fixed baseline count is promised. GitHub Actions should run for pushes and pull-request updates. A green check means all visible tests passed; it does not replace review of your explanation and code quality. Do not change the workflow or hard-code fixture output to evade checks.
 
-| Criterion | Marks |
-|---|---:|
-| Codebase understanding | 15 |
-| Problem solving and root-cause analysis | 25 |
-| Working prototype and requested features | 20 |
-| Code quality | 10 |
-| Testing and edge cases | 10 |
-| Demo, communication and viva | 20 |
-| **Total** | **100** |
+## Integrity policy
+AI chatbots, AI coding assistants, generated patches/tests and having another person write/debug the solution are prohibited. Ordinary non-AI documentation is allowed. Do not paste assessment code or data into external services. You must explain your changes and make a small live modification. Organisers may use a brief oral/code walkthrough; automated AI detectors are not definitive proof of AI use.
 
-All 300 students use the same rubric; the top 270 are shortlisted by score, subject to any minimum competency criteria announced by organisers. Follow the official event announcements for kick-off, code freeze, deadlines and demo timings.
+## Rubric — 100 marks
+- Understanding code and data flow: 15
+- Correct points calculation and financial edge cases: 25
+- Idempotency, refunds and ledger integrity: 25
+- Testing and root-cause analysis: 15
+- Code quality: 10
+- PR, notes and live explanation: 10
