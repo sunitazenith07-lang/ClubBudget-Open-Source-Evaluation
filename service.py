@@ -2,16 +2,29 @@ from copy import deepcopy
 
 
 def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
-    # Starter intentionally uses rounding and does not correctly apply every boundary rule.
-    base = round(amount_paise / 10000) * points_per_100_rupees
-    points = base * (100 + bonus_percent) // 100
-    if cap_points:
+    # 1. Check that amounts and rules are valid integers and not negative
+    if type(amount_paise) is not int or amount_paise <= 0:
+        return 0
+    if type(points_per_100_rupees) is not int or points_per_100_rupees <= 0:
+        return 0
+    if type(bonus_percent) is not int or bonus_percent < 0:
+        return 0
+    if cap_points is not None:
+        if type(cap_points) is not int or cap_points <= 0:
+            return 0
+
+    # 2. Use integer floor division (//) instead of round()
+    base = (amount_paise // 10000) * points_per_100_rupees
+    points = (base * (100 + bonus_percent)) // 100
+
+    # 3. Apply cap_points last if provided
+    if cap_points is not None:
         points = min(points, cap_points)
     return max(0, points)
 
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
-    out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+    out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('ledger',[]); out.setdefault('transactions',{})
     event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
     if kind=='purchase_captured':
         amount=event.get('amount_paise',0)
@@ -34,4 +47,4 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int=2) -> list
     groups={}
     for tx in transactions:
         key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise')); groups.setdefault(key,[]).append(tx.get('transaction_id'))
-    return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':ids} for k,ids in sorted(groups.items(),key=lambda item:str(item[0])) if len(ids)>threshold]
+    return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':ids} for k,ids in sorted(groups.items(),key=lambda item:str(item[0])) if len(ids)>=threshold]
