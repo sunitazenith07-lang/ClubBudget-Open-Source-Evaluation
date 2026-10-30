@@ -14,10 +14,10 @@ Refunds that were too large or the wrong type. My first fix capped a big refund,
 4. Re-ran python -m pytest -q after every change.
 
 ## 4. Resolution
-The root cause was missing input validation. Invalid refunds are now rejected before the balance or ledger is touched. I also fixed float division and the duplicate event check.
+The root cause was missing input validation. Invalid refunds are now rejected before the balance or ledger is touched. I also fixed rounding in the points formula, the cap of 0, and the duplicate event check.
 
 ## 5. Proof
-The refund tests and the replay/boundary tests. A case that could still break: a purchase with no transaction_id or a negative amount.
+The refund tests and the replay and boundary tests in tests/. Final result: 214 passed. A case that could still break: a purchase with no transaction_id or a negative amount.
 
 ## 6. Next step
 Add explicit checks for the purchase amount and a missing transaction_id, and test a refund replayed with a different event_id.
