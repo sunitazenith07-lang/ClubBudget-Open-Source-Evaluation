@@ -3,7 +3,9 @@
 Complete this file in your own words. Be concise and specific to the work you actually performed.
 
 ## 1. Baseline
-- Commands run before editing:
+- Commands run before editing: python -m pip install -r requirements-dev.txt,python -m pytest -q 
+python -m main
+                                                                          
 - Initial test result (include the actual summary):
 - Demo/output observed:
 
