@@ -1,5 +1,5 @@
 ## What did you change?
-Fixed the three functions in `service.py` to meet all eight required behaviours and added 97 new tests (regression, stretch-item and randomized stress tests) in `tests/test_regressions.py`, `tests/test_threshold_config.py` and `tests/test_stress.py`.
+Fixed the three functions in `service.py` to meet all eight required behaviours and added 100 new tests (regression, stretch-item and randomized stress tests) in `tests/test_regressions.py`, `tests/test_threshold_config.py` and `tests/test_stress.py`.
 
 - `calculate_points`: Fixed point calculation to use floor division, corrected bonus and cap handling, and added input validation.
 - `apply_reward_event`: Added duplicate event protection, transaction validation, refund limits and cumulative refund calculations. Updated ledger entries to include transaction details and the resulting balance.
@@ -28,8 +28,9 @@ Actual results:
 - After the stretch item: 264 passed, 0 failed.
 - After stress-test fixes: 277 passed, 0 failed.
 - After adding the stress tests: 311 passed, 0 failed.
+- After handling non-list alert input: 314 passed, 0 failed.
 - Original tests: 214.
-- New regression tests: 35, plus 15 for the stretch item, plus 13 from stress testing, plus 34 randomized stress tests in `tests/test_stress.py`.
+- New regression tests: 35, plus 15 for the stretch item, plus 13 from stress testing, plus 3 for non-list alert input, plus 34 randomized stress tests in `tests/test_stress.py`.
 
 `python -m main` also produces the expected output: `Points example: 27`, `Repeat warnings: []`.
 Environment: Python 3.14.7, pytest 9.2.0.

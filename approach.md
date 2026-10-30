@@ -50,6 +50,7 @@
   - `264 passed` after the stretch item
   - `277 passed in 0.07s` after the stress-test fixes
   - `311 passed in 0.62s` after adding the stress tests to `tests/test_stress.py`
+  - `314 passed in 0.64s` after making `flag_repeat_transactions` return `[]` for non-list input
 
   `python -m main` gives `Points example: 27` and `Repeat warnings: []`.
 - Edge cases verified: 9999 / 10000 / 19999 paise, cap 0, bonus over 100%, `True`/`"100"`/`1.5` amounts, a refund equal to the purchase, a refund 1 paisa too big, a repeated refund, and a threshold exactly reached vs. exceeded.

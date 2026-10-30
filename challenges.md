@@ -35,7 +35,7 @@ Nothing completely blocked me, but these were the parts that took the most figur
 
 ## 5. Proof and regression prevention
 - Tests: `test_partial_refunds_sum_to_full_reversal`, `test_cumulative_refunds_cannot_exceed_purchase`, `test_invalid_purchase_amount_creates_no_transaction[True]`, `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_reward_events_keep_ledger_consistent` (all in `tests/test_regressions.py`).
-- Final run: `311 passed in 0.62s` (including the 34 stress tests).
+- Final run: `314 passed in 0.64s` (including the 34 stress tests).
 - Things that could still go wrong: an amount sent as a string like `"100000"` is rejected, not converted. So if another system sent strings, real purchases would earn nothing.
 
 ## 6. Unresolved challenge or next step

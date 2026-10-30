@@ -94,8 +94,10 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_RE
     """
     if not _is_int(threshold) or threshold < 1:
         threshold = 1
+    if not isinstance(transactions, (list, tuple)):
+        return []  # None, a number or any other non-list input has nothing to group
     groups={}
-    for tx in transactions or []:
+    for tx in transactions:
         if not isinstance(tx, dict):
             continue
         key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise'))

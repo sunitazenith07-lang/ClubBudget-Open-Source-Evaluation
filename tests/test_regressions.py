@@ -131,6 +131,11 @@ def test_empty_input_gives_no_alerts():
     assert flag_repeat_transactions([]) == [] and flag_repeat_transactions(None) == []
 
 
+@pytest.mark.parametrize("bad_input", [5, "abc", {"account_id": "A"}])
+def test_non_list_alert_input_gives_no_alerts(bad_input):
+    assert flag_repeat_transactions(bad_input) == []
+
+
 @pytest.mark.parametrize("threshold", [0, -1])
 def test_non_positive_threshold_is_treated_as_one(threshold):
     rows = [{"transaction_id": "1", "account_id": "A", "date": "D", "amount_paise": 1000}]

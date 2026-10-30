@@ -21,7 +21,7 @@ also did the stretch thing. the threshold is configurable now: `python -m main -
 
 - `service.py`: basically all the actual fixes are here
 - `main.py`: added the `--threshold` option. that's it
-- `tests/test_regressions.py`: new, 48 tests for the fixes
+- `tests/test_regressions.py`: new, 51 tests for the fixes
 - `tests/test_threshold_config.py`: new, 15 tests for the threshold thing
 - `tests/test_stress.py`: new, 34 tests that throw thousands of random inputs at the code
 - `approach.md`, `challenges.md`, `optimizations.md`, `TESTING.md`, `REWARD_RULE_NOTES.md`: the required docs
@@ -46,6 +46,7 @@ didn't touch any of the original tests or the CI file. not allowed to, and didn'
 - after the threshold thing: `264 passed`
 - after the stress-test fixes: `277 passed`
 - after adding the stress tests: `311 passed` locally (python 3.14.7)
+- after making the alert function return `[]` for non-list input (it crashed on a plain number): `314 passed`
 - CI on github (python 3.11): `311 passed, 0 failed`. run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41118478250
 - `python -m main` prints `Points example: 27` (the old one said 28, which was wrong)
 

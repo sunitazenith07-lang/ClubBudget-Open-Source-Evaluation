@@ -9,19 +9,20 @@
   - After the stretch item: `264 passed in 0.06s` (+15 in `tests/test_threshold_config.py`)
   - After the stress-test fixes: `277 passed in 0.07s` (+13 in `tests/test_regressions.py`)
   - After adding the stress tests: `311 passed in 0.62s` (+34 in `tests/test_stress.py`)
+  - After handling non-list alert input: `314 passed in 0.64s` (+3 in `tests/test_regressions.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
   - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 311, Passed 311, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41118478250
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
 ## Automated run
 - Command: `python -m pytest -q`
-- Total: 311
-- Passed: 311
+- Total: 314
+- Passed: 314
 - Failed: 0
 - Errors: 0
 - Skipped: 0
 
-(Same counts locally on Python 3.14.7 and in CI on Python 3.11.)
+(Local run on Python 3.14.7. The CI run on Python 3.11 is listed above.)
 
 ## Edge-case evidence
 
@@ -46,7 +47,7 @@ All of these are in `tests/test_regressions.py`:
 - Missing IDs / bad amounts: `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_invalid_purchase_amount_creates_no_transaction`
 - Refund limits: `test_cumulative_refunds_cannot_exceed_purchase`, `test_partial_refunds_sum_to_full_reversal`, `test_balance_never_negative_even_if_account_already_low`
 - Ledger: `test_ledger_entries_are_auditable_and_sum_to_balance`, `test_dataset_reward_events_keep_ledger_consistent`
-- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_repeat_groups_are_flagged`
+- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_list_alert_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_repeat_groups_are_flagged`
 
 Stretch item tests, in `tests/test_threshold_config.py`: `test_threshold_read_from_config`, `test_missing_or_invalid_config_falls_back_to_default`, `test_dataset_threshold_matches_default_result`, `test_raising_threshold_reduces_alerts`, `test_cli_threshold_default_and_override`, `test_cli_threshold_one_flags_sample_pair`, `test_cli_rejects_invalid_threshold`.
 
