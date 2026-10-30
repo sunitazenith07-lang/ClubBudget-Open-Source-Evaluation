@@ -5,7 +5,7 @@ Complete this file with test evidence from your own work. Include at least five 
 ## Test command and environment
 - Python version: Python 3.11+
 - Command run: `python -m pytest -q`
-- Actual test summary: `216 passed` (0 failed)
+- Actual test summary: `218 passed` (0 failed)
 
 ## Edge-case evidence
 
@@ -20,6 +20,8 @@ Complete this file with test evidence from your own work. Include at least five 
 ## Regression tests added
 - `test_boolean_and_non_int_inputs_rejected`: Prevents `bool` values (`True`/`False`) from being accepted as `1`/`0` integer amounts or rule multipliers.
 - `test_cumulative_partial_refunds_and_over_refund_rejected`: Verifies sequential partial refunds and ensures a subsequent refund exceeding the remaining unrefunded paise is rejected.
+- `test_refund_event_replay_is_idempotent`: Verifies replaying the same `refund_processed` event ID does not deduct points twice.
+- `test_repeat_transactions_skips_missing_fields`: Ensures rows with empty `transaction_id` are ignored when grouping repeats.
 
 ## Remaining failures or limitations
-None. All 216 tests in `tests/test_contract.py` and `tests/test_acceptance_matrix.py` pass cleanly.
+None. All 218 tests in `tests/test_contract.py` and `tests/test_acceptance_matrix.py` pass cleanly.

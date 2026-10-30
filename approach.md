@@ -24,6 +24,6 @@ Complete this file in your own words. Be concise and specific to the work you ac
 
 ## 5. Verification
 - Tests added or changed: Added `test_boolean_and_non_int_inputs_rejected` and `test_cumulative_partial_refunds_and_over_refund_rejected` in `tests/test_contract.py`.
-- Commands run and actual results: `python -m pytest -q` (`216 passed`) and `python -m main` (`Points example: 27`, `Repeat warnings: []`).
+- Commands run and actual results: `python -m pytest -q` (`218 passed`) and `python -m main` (`Points example: 27`, `Repeat warnings: []`).
 - Edge cases verified: Sub-₹100 amounts, `cap_points = 0`, boolean/null/container refund inputs, cumulative partial refunds, and threshold boundaries.
 - Remaining failures or known limitations: None.
