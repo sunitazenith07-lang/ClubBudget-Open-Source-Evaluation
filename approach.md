@@ -1,32 +1,32 @@
 # approach.md - Required submission
 
-Complete this file in your own words. Be concise and specific to the work you actually performed.
-
 ## 1. Baseline
-- Commands run before editing:
-- Initial test result (include the actual summary):
-- Demo/output observed:
+- Commands run before editing: `python -m pip install -r requirements-dev.txt` (inside a virtual environment, because Homebrew Python 3.14.7 refuses global installs), `python -m pytest -q`, `python -m main`. The baseline was run on a clean export of the starter commit (`git archive HEAD`) so it is not affected by my edits.
+- Initial test result (include the actual summary): `67 failed, 147 passed in 0.17s` (Python 3.14.7, pytest 9.2.0). Failures by test: `test_purchase_event_replay_is_idempotent` 20, `test_invalid_or_excess_refund_does_not_change_account` 13, `test_integer_floor_points_calculation` 11, `test_refund_amount_bounds_and_balance` 10, `test_capture_purchase_records_consistent_transaction` 6, `test_bonus_and_cap_matrix` 3, plus `test_points_use_floor`, `test_cap_zero_is_respected`, `test_purchase_event_once`, `test_invalid_or_excess_refund_ignored` in `test_contract.py`.
+- Demo/output observed: `Points example: 28` and `Repeat warnings: []`. The 28 is wrong: 259900 paise is ₹2599, so floor gives 25 base points and 25 × 110 // 100 = 27, but `round(25.99)` gave 26 → 28.
 
 ## 2. Codebase understanding
-- Important files/functions inspected:
-- Rewards calculation, refund, ledger or alert flow traced:
-- How you confirmed your understanding:
+- Important files/functions inspected: `service.py` (`calculate_points`, `apply_reward_event`, `flag_repeat_transactions` — all business logic), `models.py` (`new_account` shape: balance, processed IDs, transactions, ledger), `fixtures.py` / `main.py` (demo data), `tests/test_contract.py` and `tests/test_acceptance_matrix.py` (acceptance contract), `.github/workflows/tests.yml` (runs demo + pytest on Python 3.11, stays red while tests fail), `data/records.json` + `data/README.txt`.
+- Rewards calculation, refund, ledger or alert flow traced: an event is applied to a deep copy of the account. `purchase_captured` → `calculate_points` → transaction record + balance increase + ledger entry. `refund_processed` → look up the transaction → proportional reversal from cumulative refunded paise → balance decrease + ledger entry. Repeat alerts group transactions by `(account_id, date, amount_paise)` and return groups larger than the threshold.
+- How you confirmed your understanding: mapped each failing test to the line in `service.py` responsible, and profiled `data/records.json` — 264 reward events of which 157 have no `event_id`, amounts include `None`, `"100"`, `1.5`, `True`, `[]`, `{}`; 180 repeat records in 60 groups of 3, 12 of which have `amount_paise == 0`; 8 rule cases including negative rate, `-100` bonus and `-1` cap.
 
 ## 3. Investigation and implementation strategy
-For each major defect, describe the symptom, hypothesis, evidence from a test/log/example, and the fix chosen.
-- Issue 1:
-- Issue 2:
-- Issue 3 (if applicable):
+- **Issue 1 — points rounding and caps.** Symptom: `test_points_use_floor` (19999 paise gave 2 points). Hypothesis/evidence: base used `round(amount / 10000)`, which is float rounding, not floor; `if cap_points:` treated a cap of `0` as "no cap" (`test_cap_zero_is_respected`); negative rule values were not rejected. Fix: integer `amount // 10000 * rate`, then `base * (100 + bonus) // 100`, then cap with `is not None`; any non-integer, boolean or negative amount/rule returns 0.
+- **Issue 2 — idempotency and invalid events.** Symptom: `test_purchase_event_replay_is_idempotent` — the starter appended `event_id` to `processed_event_ids` on every call and never checked it. It also recorded IDs for declined/unknown events and accepted any `amount_paise` type. Fix: reject events already processed or missing `event_id`/`transaction_id`; reject non-positive or non-integer amounts; only `purchase_captured` and `refund_processed` change the account; a second capture of an existing `transaction_id` is ignored.
+- **Issue 3 — refund bounds.** Symptom: `test_invalid_or_excess_refund_does_not_change_account` and `test_refund_amount_bounds_and_balance` — negative, zero, over-sized refunds were added to `refunded_paise`. Fix: reject a refund when `refunded_paise + amount > amount_paise`; compute `should_reverse = awarded * refunded // amount` from the cumulative total and reverse only the difference, clamped to the current balance so it never goes negative.
+- **Issue 4 — repeat alerts.** Threshold `<= 0` and rows with missing keys were not handled. Fix: threshold below 1 is treated as 1; rows missing account/date/transaction ID or with a non-positive/non-integer amount are skipped; output is sorted deterministically and labelled `needs_review`.
 
 ## 4. Implementation decisions
-- Main changes and why:
+- Main changes and why: all fixes are in `service.py` so the public function signatures and account shape used by the tests stay the same. A small `_is_int` helper rejects `bool`, because `True` is an `int` subclass in Python and would otherwise count as 1 paise. Ledger entries now include `transaction_id`, `amount_paise` and `balance_after` so each balance change can be audited.
 - Alternatives considered and why rejected:
-- Assumptions:
+  - Clamping invalid rules (e.g. negative bonus → 0%) instead of returning 0 points — rejected because the requirement says invalid rules must not generate points, and silently "repairing" a misconfigured promotion hides the error.
+  - Recording rejected event IDs as processed — rejected because a malformed event could then never be retried with corrected data.
+  - Computing each refund's reversal independently — rejected because flooring each partial refund separately can leave points unreversed after a full refund; the cumulative formula always reaches the full award (see `test_partial_refunds_sum_to_full_reversal`).
+  - Raising exceptions on bad input — rejected because the tests expect the account to be returned unchanged, and the alert path must never block processing.
+- Assumptions: amounts are integer paise; only `purchase_captured` (exact, case-sensitive) earns points; zero-amount transactions are not real purchases and are excluded from repeat alerts (so the dataset produces 48 alert groups, not 60); a threshold below 1 is a configuration error and is treated as 1.
 
 ## 5. Verification
-- Tests added or changed:
-- Commands run and actual results:
-- Edge cases verified:
-- Remaining failures or known limitations:
-
-Record actual engineering decisions and evidence. Do not claim tests or experiments you did not run.
+- Tests added or changed: added `tests/test_regressions.py` (invalid rules/amounts, duplicate capture with a new event ID, missing identifiers, retry after rejection, duplicate refund event, cumulative over-refund, multi-step partial refunds, negative-balance clamp, ledger audit fields and sum, empty/None alert input, non-positive threshold, deterministic order, and two tests that replay `data/records.json`). No existing tests were modified, skipped or deleted; CI unchanged.
+- Commands run and actual results: `python -m pytest -q` → `249 passed in 0.06s` (214 original + 35 new). `python -m main` → `Points example: 27`, `Repeat warnings: []` (the sample has only 2 matching transactions, which does not exceed threshold 2).
+- Edge cases verified: 9999 / 10000 / 19999 paise boundaries, cap 0, bonus above 100%, `True`/`"100"`/`1.5` amounts, refund equal to the purchase, refund one paisa over, replayed refund, threshold exactly reached vs exceeded.
+- Remaining failures or known limitations: no failing tests. Known limitations: `processed_event_ids` is a list, so the duplicate check is O(n) per event; there is no persistence or concurrency control; repeat alerts exclude zero-amount rows by design.
