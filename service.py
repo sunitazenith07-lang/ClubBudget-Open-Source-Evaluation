@@ -1,37 +1,28 @@
 from copy import deepcopy
 
 
-def calculate_points(
-    amount_paise: int,
-    points_per_100_rupees: int,
-    bonus_percent: int = 0,
-    cap_points: int | None = None,
-) -> int:
-    # Integer floor arithmetic: base = (paise // 10000) * rate, bonus applied, cap last.
-    # Invalid/negative amounts or rules return 0. cap_points=0 means zero points.
-    if not isinstance(amount_paise, int) or isinstance(amount_paise, bool) or amount_paise <= 0:
+def _is_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int = 0, cap_points: int | None = None) -> int:
+    if not _is_int(amount_paise) or amount_paise <= 0:
         return 0
-    if not isinstance(points_per_100_rupees, int) or isinstance(points_per_100_rupees, bool) or points_per_100_rupees <= 0:
+    if not _is_int(points_per_100_rupees) or points_per_100_rupees <= 0:
         return 0
-    if not isinstance(bonus_percent, int) or isinstance(bonus_percent, bool) or bonus_percent < 0:
+    if not _is_int(bonus_percent) or bonus_percent < 0:
         return 0
 
-    base_points = (amount_paise // 10000) * points_per_100_rupees
-    bonus_points = (base_points * (100 + bonus_percent)) // 100
-
+    points = (amount_paise // 10000) * points_per_100_rupees
+    points = (points * (100 + bonus_percent)) // 100
     if cap_points is not None:
-        if not isinstance(cap_points, int) or isinstance(cap_points, bool) or cap_points < 0:
+        if not _is_int(cap_points) or cap_points < 0:
             return 0
-        bonus_points = min(bonus_points, cap_points)
-
-    return max(0, bonus_points)
+        points = min(points, cap_points)
+    return max(0, points)
 
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
-    # Apply a purchase or refund event to an account and return the updated copy.
-    # Only purchase_captured earns points; each event_id is processed once only.
-    # Refunds reverse points proportionally; balance never goes negative.
-    # Ledger entry written for every accepted event. Malformed input is safely ignored.
     out = deepcopy(account) if isinstance(account, dict) else {}
     out.setdefault('points_balance', 0)
     out.setdefault('processed_event_ids', [])
@@ -42,101 +33,55 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
         return out
 
     event_id = event.get('event_id')
-    if not event_id or not isinstance(event_id, str):
+    if not isinstance(event_id, str) or not event_id or event_id in out['processed_event_ids']:
         return out
 
-    if event_id in out['processed_event_ids']:
-        return out
-
-    kind = event.get('type')
     txn_id = event.get('transaction_id')
-    if not txn_id or not isinstance(txn_id, str):
+    if not isinstance(txn_id, str) or not txn_id:
         return out
 
-    if not isinstance(rules, dict):
-        rules = {}
+    rules = rules if isinstance(rules, dict) else {}
+    kind = event.get('type')
 
     if kind == 'purchase_captured':
         amount = event.get('amount_paise')
-        if not isinstance(amount, int) or isinstance(amount, bool) or amount <= 0:
+        if not _is_int(amount) or amount <= 0:
             return out
-
-        points = calculate_points(
-            amount,
-            rules.get('points_per_100_rupees', 1),
-            rules.get('bonus_percent', 0),
-            rules.get('cap_points'),
-        )
-
-        if txn_id not in out['transactions']:
-            out['transactions'][txn_id] = {
-                'amount_paise': amount,
-                'awarded_points': points,
-                'reversed_points': 0,
-                'refunded_paise': 0,
-            }
-            out['points_balance'] += points
-            out['ledger'].append({
-                'event_id': event_id,
-                'type': kind,
-                'points_delta': points,
-            })
-            out['processed_event_ids'].append(event_id)
-
-    elif kind == 'refund_processed':
-        if txn_id not in out['transactions']:
+        if txn_id in out['transactions']:
             return out
+        points = calculate_points(amount, rules.get('points_per_100_rupees', 1), rules.get('bonus_percent', 0), rules.get('cap_points'))
+        out['transactions'][txn_id] = {'amount_paise': amount, 'awarded_points': points, 'reversed_points': 0, 'refunded_paise': 0}
+        out['points_balance'] += points
+        out['ledger'].append({'event_id': event_id, 'type': kind, 'points_delta': points})
+        out['processed_event_ids'].append(event_id)
+        return out
 
-        txn = out['transactions'][txn_id]
+    if kind == 'refund_processed':
+        txn = out['transactions'].get(txn_id)
+        if not isinstance(txn, dict):
+            return out
         refund = event.get('amount_paise')
-
-        # Validate refund amount: must be positive integer, and cumulative refund cannot exceed original amount
-        if not isinstance(refund, int) or isinstance(refund, bool) or refund <= 0:
+        if not _is_int(refund) or refund <= 0 or txn['refunded_paise'] + refund > txn['amount_paise']:
             return out
 
-        if txn['refunded_paise'] + refund > txn['amount_paise']:
-            return out
-
-        new_refunded_paise = txn['refunded_paise'] + refund
-        orig_amount = txn['amount_paise']
-        awarded = txn['awarded_points']
-
-        if orig_amount > 0:
-            should_reverse = (awarded * new_refunded_paise) // orig_amount
-        else:
-            should_reverse = 0
-
-        # Never reverse more than awarded
-        should_reverse = min(should_reverse, awarded)
-
-        delta = should_reverse - txn['reversed_points']
-        if delta < 0:
-            delta = 0
-
-        # Never allow negative points balance
-        delta = min(delta, out['points_balance'])
-
+        total_refunded = txn['refunded_paise'] + refund
+        should_reverse = min(txn['awarded_points'], (txn['awarded_points'] * total_refunded) // txn['amount_paise'])
+        delta = min(max(should_reverse - txn['reversed_points'], 0), out['points_balance'])
         out['points_balance'] -= delta
         txn['reversed_points'] += delta
-        txn['refunded_paise'] = new_refunded_paise
-
-        out['ledger'].append({
-            'event_id': event_id,
-            'type': kind,
-            'points_delta': -delta,
-        })
+        txn['refunded_paise'] = total_refunded
+        out['ledger'].append({'event_id': event_id, 'type': kind, 'points_delta': -delta})
         out['processed_event_ids'].append(event_id)
 
     return out
 
 
 def flag_repeat_transactions(transactions: list[dict], threshold: int = 2) -> list[dict]:
-    # Group by (account_id, date, amount_paise) and flag groups exceeding threshold.
-    # Alerts are for human review only — never block a transaction.
     if not isinstance(transactions, list):
         return []
-    if threshold is None or not isinstance(threshold, int) or isinstance(threshold, bool) or threshold < 1:
+    if threshold is None or not _is_int(threshold) or threshold < 1:
         threshold = 2
+
     groups = {}
     for tx in transactions:
         if not isinstance(tx, dict):
@@ -151,28 +96,24 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int = 2) -> li
 
 
 def generate_account_statement_csv(account: dict) -> str:
-    # Stretch work: export ledger as CSV with running balance column.
-    header = "event_id,type,points_delta,running_balance"
+    header = 'event_id,type,points_delta,running_balance'
     if not isinstance(account, dict):
-        return header + "\n"
+        return header + '\n'
 
     ledger = account.get('ledger', [])
     if not isinstance(ledger, list):
-        return header + "\n"
+        return header + '\n'
 
-    lines = [header]
-    running_balance = 0
+    rows = [header]
+    running = 0
     for entry in ledger:
         if not isinstance(entry, dict):
             continue
-        event_id = str(entry.get('event_id', ''))
-        kind = str(entry.get('type', ''))
         delta = entry.get('points_delta', 0)
-        if not isinstance(delta, int) or isinstance(delta, bool):
+        if not _is_int(delta):
             delta = 0
-        running_balance += delta
-        lines.append(f"{event_id},{kind},{delta},{running_balance}")
-
-    return "\n".join(lines) + "\n"
+        running += delta
+        rows.append(f"{entry.get('event_id', '')},{entry.get('type', '')},{delta},{running}")
+    return '\n'.join(rows) + '\n'
 
 
