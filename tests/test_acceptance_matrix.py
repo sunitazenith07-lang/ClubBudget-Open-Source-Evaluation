@@ -76,6 +76,28 @@ def test_refund_amount_bounds_and_balance(amount):
         assert result["points_balance"] == 10
 
 
+def test_refund_event_replay_is_idempotent():
+    rules = {"points_per_100_rupees":1}
+    account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+    refund = {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":50000}
+    once = apply_reward_event(account, refund, rules)
+    twice = apply_reward_event(once, refund, rules)
+    assert twice["points_balance"] == 5
+    assert twice["transactions"]["T"]["refunded_paise"] == 50000
+    assert twice["processed_event_ids"] == ["P", "R"]
+    assert len(twice["ledger"]) == 2
+
+
+def test_refund_cannot_exceed_remaining_purchase_amount():
+    rules = {"points_per_100_rupees":1}
+    account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+    account = apply_reward_event(account, {"event_id":"R1","type":"refund_processed","transaction_id":"T","amount_paise":60000}, rules)
+    result = apply_reward_event(account, {"event_id":"R2","type":"refund_processed","transaction_id":"T","amount_paise":50000}, rules)
+    assert result["transactions"]["T"]["refunded_paise"] == 60000
+    assert result["points_balance"] == 4
+    assert len(result["ledger"]) == 2
+
+
 @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
 def test_invalid_or_excess_refund_does_not_change_account(amount):
     rules = {"points_per_100_rupees":1}
@@ -119,6 +141,15 @@ def test_repeat_alerts_do_not_mix_distinct_keys(account_id, date, amount):
         assert len(result) == 1
     else:
         assert result == []
+
+
+def test_repeat_alert_skips_rows_missing_identifiers():
+    rows = [
+        {"transaction_id":"1","account_id":None,"date":"D","amount_paise":1000},
+        {"transaction_id":"2","account_id":None,"date":"D","amount_paise":1000},
+        {"transaction_id":"3","account_id":None,"date":"D","amount_paise":1000},
+    ]
+    assert flag_repeat_transactions(rows, threshold=2) == []
 
 
 @pytest.mark.parametrize("kind", ["purchase_declined","purchase_pending","unknown","refund","",None,1,"PURCHASE_CAPTURED"])
