@@ -1,50 +1,68 @@
-# TESTING.md — RewardBook Test Evidence
+# Testing — RewardBook
 
-## Test command and environment
+## Test setup
 
-- **Python version:** Python 3.14.4
-- **Command run:** `python -m pytest -q`
-- **Baseline result:** 147 passed, 67 failed.
-- **Current result:** 214 passed.
-- **Test framework:** pytest
+I used the following environment to run the tests:
 
-The baseline failures exposed issues in integer floor-based reward calculation, bonus and cap handling, duplicate event processing, and refund validation. After the implementation changes, the full test suite passed.
+- Python version: Python 3.14.4
+- Test framework: pytest
+- Command: `python -m pytest -q`
 
-## Edge-case evidence
+The first time I ran the tests, the result was:
 
-| # | Case / input | Expected behaviour | Actual result | Test name or evidence |
-|---|--------------|--------------------|---------------|-----------------------|
-| 1 | Purchase amount of 19,999 paise | Award 1 point at 1 point per ₹100 | Passed | `test_integer_floor_points_calculation` |
-| 2 | Reward cap set to zero | Award zero points | Passed | `test_cap_zero_is_respected`, `test_bonus_and_cap_matrix` |
-| 3 | Same purchase event replayed | Balance and ledger must not be updated twice | Passed | `test_purchase_event_replay_is_idempotent`, `test_purchase_event_once` |
-| 4 | Refund greater than original purchase amount | Reject refund without changing balance or refunded amount | Passed | `test_refund_amount_bounds_and_balance`, `test_invalid_or_excess_refund_ignored` |
-| 5 | Partial refund of 50,000 paise on a 100,000-paise purchase | Reverse 50% of the awarded points | Passed | `test_partial_refund_reverses_proportionally` |
-| 6 | Declined purchase event | Do not award reward points | Passed | `test_unrecognized_or_declined_events_do_not_award_points`, `test_declined_event_does_not_award` |
-| 7 | Same transaction pattern across different accounts | Do not group unrelated accounts together | Passed | `test_repeat_alerts_do_not_mix_distinct_keys`, `test_different_accounts_not_grouped` |
+```text
+147 passed, 67 failed
+```
 
-## Regression tests
+After making the changes, I ran the full test suite again and got:
 
-The existing contract and acceptance test suites cover the following defects and behaviours:
+```text
+214 passed
+```
 
-- Integer floor-based reward calculation instead of rounding.
-- Correct application of bonus percentages and reward caps, including a zero cap.
-- Idempotent processing of repeated event IDs.
-- Consistent purchase transaction and reward-point records.
-- Rejection of negative, zero, malformed and excessive refund amounts.
-- Proportional reversal of points for partial refunds.
-- Safe handling of unknown and declined events.
-- Repeat-transaction grouping by account, date and amount.
-- Repeat-alert threshold boundaries.
-- Input account immutability.
+The first test run showed problems in reward calculation, bonus and cap handling, duplicate events, and refund validation.
 
-The regression coverage is provided by `tests/test_contract.py` and `tests/test_acceptance_matrix.py`.
+## Edge cases I checked
 
-## Remaining failures or limitations
+| No. | Input / case | Expected result | Test result |
+|---|---|---|---|
+| 1 | Purchase amount is 19,999 paise | 1 point at 1 point per ₹100 | Passed |
+| 2 | Points cap is 0 | Final points should be 0 | Passed |
+| 3 | Same purchase event is processed again | Points and ledger should not be updated twice | Passed |
+| 4 | Refund is more than the original purchase amount | Refund should be rejected without changing the balance | Passed |
+| 5 | ₹500 refund on a ₹1,000 purchase | 50% of the awarded points should be reversed | Passed |
+| 6 | Purchase is declined | No reward points should be given | Passed |
+| 7 | Similar transactions belong to different accounts | They should not be grouped together | Passed |
 
-- Missing or empty event and transaction identifiers have not been independently verified.
-- Malformed purchase amounts and malformed reward-rule types require additional validation.
-- The repeat-alert function uses a strict greater-than threshold (`count > threshold`).
-- Repeat alerts identify possible patterns for human review; they do not establish fraud or block transactions.
-- The current test suite does not establish production database persistence or concurrent event-processing safety.
+These cases are covered by the existing tests in `tests/test_contract.py` and `tests/test_acceptance_matrix.py`.
 
-No current test failures were reported in the verified full-suite run.
+## What the existing tests cover
+
+The test files check:
+
+- Reward points are calculated using floor division.
+- Bonus percentage and points cap are applied correctly.
+- A zero points cap is handled correctly.
+- The same event ID is not processed more than once.
+- Purchase transaction details match the points awarded.
+- Invalid and excessive refunds are rejected.
+- Partial refunds reverse points proportionally.
+- Unknown and declined events do not award points.
+- Repeat transactions are grouped using account, date and amount.
+- Repeat-alert threshold conditions work.
+- The original account object is not changed by event processing.
+
+I did not change the existing test files.
+
+## Things not fully tested yet
+
+There are still some cases that need more testing:
+
+- Missing or empty event IDs and transaction IDs.
+- Invalid purchase amount types.
+- Invalid reward-rule types.
+- Database storage and handling multiple events at the same time.
+
+The repeat-alert function uses `count > threshold`. These alerts only show possible repeated patterns for someone to review. They do not prove fraud or block a transaction.
+
+The latest full test run completed with 214 passing tests and no reported failures.

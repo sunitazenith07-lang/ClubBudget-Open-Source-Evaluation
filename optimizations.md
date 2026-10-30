@@ -1,122 +1,97 @@
 # Optimizations — RewardBook
 
-## 1. Baseline observations
+## 1. What I found in the first test run
 
-The initial implementation had several correctness issues identified through the baseline test run.
-
-The baseline result was:
+When I ran the tests before changing the code, I got:
 
 ```text
 147 passed, 67 failed
 ```
 
-The main areas requiring improvement were:
+The main issues were:
 
-- Reward calculation accuracy.
-- Handling of zero-valued reward caps.
-- Duplicate event processing.
-- Refund validation.
-- Consistency of transaction and reward records.
+- Reward points were not always calculated correctly.
+- A zero points cap was not being applied.
+- Duplicate events were not handled properly.
+- Refund values were not validated properly.
+- Some transaction and reward records were not matching the expected behaviour.
 
-## 2. Implemented improvements
+## 2. Improvements I made
 
-### A. Integer-based reward calculation
+### A. Changed reward calculation to integer arithmetic
 
-**Previous approach:** Floating-point division and rounding.
-
-**Improved approach:** Integer floor division.
+Earlier, the calculation used floating-point division and rounding. I changed it to integer floor division:
 
 ```python
 base = (amount_paise // 10000) * points_per_100_rupees
 ```
 
-**Benefit:**
-- Avoids floating-point rounding errors.
-- Produces predictable results at reward boundaries.
-- Keeps monetary calculations in integer paise.
+This gives the expected result at the ₹100 boundaries and avoids floating-point rounding issues.
 
-### B. Correct cap handling
+### B. Fixed the points cap
 
-The implementation checks whether the cap is `None` rather than relying on truthiness.
+I used a `None` check for the cap instead of checking whether the value is true or false.
 
-**Benefit:**
-- A zero-point cap is respected.
-- Optional caps remain supported.
+This means a cap of zero is also applied correctly.
 
-### C. Duplicate-event protection
+### C. Added duplicate event protection
 
-An early check against processed event IDs prevents the same event from being applied repeatedly.
+I added an early check for event IDs that have already been processed.
 
-**Benefit:**
-- Prevents duplicate reward credits and refund reversals.
-- Keeps the processed-event list consistent for replayed events.
+This stops the same event from being applied again and keeps the processed-event list consistent.
 
-### D. Refund validation
+### D. Added refund checks
 
-Refund processing now checks:
+Before changing the transaction, the code checks the refund value.
 
-- Refund value type.
-- Positive refund amount.
-- Cumulative refund amount against the original purchase amount.
+It rejects non-integer values, zero or negative values, and refunds that exceed the remaining refundable amount.
 
-**Benefit:**
-- Rejects malformed and excessive refunds.
-- Protects transaction refund totals from invalid updates.
+### E. Improved partial refund calculation
 
-### E. Proportional refund calculation
+The code calculates the total points that should be reversed based on the cumulative refunded amount.
 
-The implementation uses cumulative refund value to calculate the total points that should be reversed.
+Only the difference from the previous reversal is deducted. This supports multiple partial refunds without reversing the same points twice.
 
-**Benefit:**
-- Supports partial refunds.
-- Avoids reversing more points than were originally awarded.
-- Uses integer arithmetic.
+### F. Grouped repeat transactions
 
-### F. Repeat-transaction grouping
+I grouped transactions using account ID, date and amount.
 
-Transactions are grouped by account, date and amount.
+This helps find similar transactions while keeping different accounts and dates separate. The results are only alerts for manual review.
 
-**Benefit:**
-- Identifies repeated transaction patterns.
-- Avoids grouping records belonging to different accounts or dates.
-- Provides alerts for human review.
+## 3. Some trade-offs in the current code
 
-## 3. Trade-offs
-
-| Implementation choice | Benefit | Trade-off |
+| What I used | Why I used it | Limitation |
 |---|---|---|
-| Integer arithmetic | Accurate and predictable calculations | Requires explicit handling of units |
-| Deep copy of account | Preserves input account state | Uses additional memory |
-| Processed event ID list | Simple replay protection | Lookup becomes slower as the list grows |
-| In-memory transaction storage | Simple implementation | Does not provide persistence |
-| Grouping with dictionaries | Efficient grouping | Requires valid and consistent transaction fields |
+| Integer arithmetic | Keeps reward calculations predictable | I need to be careful about using paise and rupees correctly |
+| Deep copy of account | Keeps the original account unchanged | It uses extra memory |
+| List of processed event IDs | Simple way to check duplicate events | Searching the list can become slower when it grows |
+| In-memory transaction data | Easy to work with in this project | Data is not permanently stored |
+| Dictionary grouping | Makes it easy to group similar transactions | Transaction fields should be present and consistent |
 
-## 4. Further optimization opportunities
+## 4. Improvements I would work on next
 
-The following are proposed improvements and are not claimed as implemented.
+These are ideas for future work. They are not implemented as part of the current changes.
 
-1. **Persistent storage:** Store account balances, transactions and ledger entries in a database.
-2. **Database-level idempotency:** Enforce uniqueness of event IDs to protect against concurrent duplicate processing.
-3. **Identifier validation:** Reject missing or empty event and transaction identifiers.
-4. **Input validation:** Validate purchase amounts and reward-rule values before processing.
-5. **Ledger reconciliation:** Add checks to ensure the balance matches the sum of accepted ledger entries.
-6. **Scalable repeat detection:** Use database indexes or grouped queries for large transaction datasets.
-7. **Automated monitoring:** Track rejected events, refund failures and repeat-alert counts.
+1. **Database storage:** Store account balances, transactions and ledger entries in a database.
+2. **Unique event IDs:** Use a database-level unique constraint so duplicate events are also handled safely when multiple requests come together.
+3. **Identifier checks:** Reject events with missing or empty event IDs and transaction IDs.
+4. **Input validation:** Check purchase amounts and reward-rule values before processing.
+5. **Ledger checks:** Verify that the account balance matches the accepted ledger entries.
+6. **Faster repeat detection:** Use database indexes or grouped queries when there are many transactions.
+7. **Monitoring:** Keep track of rejected events, refund failures and repeat alerts.
 
-## 5. Verification
+## 5. Final test result
 
-After the implemented changes, the full test suite reported:
-
-```text
-214 passed
-```
-
-The test command was:
+After making the changes, I ran the full test suite again:
 
 ```bash
 python -m pytest -q
 ```
 
-The baseline result was 147 passed and 67 failed.
+The result was:
 
-The improvements focused on correctness and safe event processing rather than premature performance optimization.
+```text
+214 passed
+```
+
+The main focus of my changes was fixing the correctness issues found in the first test run, rather than trying to optimize performance before it was needed.

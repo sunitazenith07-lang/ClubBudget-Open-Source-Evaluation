@@ -1,15 +1,17 @@
-# Reward Rules — Calculation Notes
+# Reward Rules — My Notes
 
-## 1. Reward calculation formula
+## 1. How the points are calculated
 
-The reward calculation uses integer arithmetic and paise as the input unit.
+The amount is given in paise, so I used integer arithmetic for the calculation.
 
-1. Calculate base points by dividing the purchase amount in paise by 10,000 using floor division.
-2. Multiply the base points by the configured points per ₹100.
-3. Apply the bonus percentage using integer floor division.
-4. Apply the optional points cap last.
+The steps are:
 
-### Formula
+1. Divide the purchase amount by 10,000 using floor division.
+2. Multiply it by the points given per ₹100.
+3. Apply the bonus percentage.
+4. Apply the points cap at the end, if a cap is given.
+
+The calculation used in the code is:
 
 ```python
 base_points = (amount_paise // 10000) * points_per_100_rupees
@@ -21,26 +23,26 @@ else:
     final_points = bonus_points
 ```
 
-Negative amounts and negative rule values return zero points. A cap of zero is valid and results in zero points.
+Negative amounts and negative rule values return zero points. A cap of zero is also valid, so the final points become zero when the cap is zero.
 
-## 2. Worked purchase calculation
+## 2. Example of a purchase
 
-Assume:
+Let's take these values:
 
 - Purchase amount: ₹500
 - Amount in paise: 50,000
 - Points per ₹100: 2
-- Bonus percentage: 50%
-- Maximum points cap: 6
+- Bonus: 50%
+- Points cap: 6
 
-**Step 1 — Base points**
+**Step 1: Calculate base points**
 
 ```text
 50,000 // 10,000 = 5
 5 × 2 = 10 base points
 ```
 
-**Step 2 — Apply bonus**
+**Step 2: Apply the bonus**
 
 ```text
 10 × (100 + 50) // 100
@@ -48,29 +50,27 @@ Assume:
 = 15 points
 ```
 
-**Step 3 — Apply cap**
+**Step 3: Apply the cap**
 
 ```text
 min(15, 6) = 6 points
 ```
 
-**Final reward: 6 points.**
+So the final reward is **6 points**.
 
 ## 3. Partial refund example
 
-Assume:
+Suppose a customer makes a purchase of ₹1,000 and gets 10 points.
 
-- Original captured purchase: ₹1,000
-- Original awarded points: 10
-- Refund amount: ₹500
+Later, the customer gets a refund of ₹500.
 
-The cumulative refund percentage is:
+The refund is 50% of the original purchase:
 
 ```text
 500 / 1,000 = 50%
 ```
 
-The proportional reversal is calculated using integer arithmetic:
+So 50% of the awarded points should be reversed:
 
 ```python
 should_reverse = awarded_points * cumulative_refunded_paise // original_amount_paise
@@ -79,7 +79,7 @@ should_reverse = 10 * 50000 // 100000
 should_reverse = 5
 ```
 
-The account receives a reversal of 5 points.
+The account will have:
 
 ```text
 Original points:  10
@@ -87,25 +87,25 @@ Reversed points:   5
 Remaining balance: 5
 ```
 
-For multiple partial refunds, the cumulative refunded amount is used to calculate the total points that should have been reversed. Only the difference between the newly calculated reversal and the previously reversed points is deducted.
+If there are multiple partial refunds, the code uses the total refunded amount to calculate the total points that should be reversed. It subtracts only the additional points that need to be reversed.
 
-## 4. Important edge cases
+## 4. Edge cases to remember
 
-1. **Amount below ₹100:** A purchase of ₹99.99 (9,999 paise) earns zero base points at one point per ₹100.
-2. **Exact ₹100 boundary:** A purchase of 10,000 paise earns one base point at one point per ₹100.
-3. **Zero cap:** If `cap_points` is zero, the final reward must be zero.
-4. **Negative refund:** A negative refund must not modify the refunded amount or reward balance.
-5. **Excess refund:** A refund greater than the original purchase amount must be rejected.
-6. **Repeated event:** Processing an already accepted event ID must not award or reverse points again.
-7. **Partial refund:** Multiple partial refunds must not reverse more points than the original award.
+1. **Amount below ₹100:** ₹99.99 (9,999 paise) gives 0 base points when the rate is 1 point per ₹100.
+2. **Exactly ₹100:** 10,000 paise gives 1 base point at the same rate.
+3. **Zero cap:** If the cap is 0, the final points should also be 0.
+4. **Negative refund:** A negative refund should not change the refunded amount or balance.
+5. **Refund greater than purchase:** It should be rejected.
+6. **Same event again:** An already processed event should not give or reverse points again.
+7. **Multiple partial refunds:** The total reversal should not be more than the points originally awarded.
 
-## 5. Assumptions
+## 5. Assumptions I followed
 
-- Purchase amounts and refund amounts are represented in integer paise.
-- Only captured purchases are eligible for rewards.
-- Refunds are associated with an existing captured transaction.
-- Refund amounts must be positive integers.
-- A refund cannot make cumulative refunded value exceed the original purchase amount.
-- The points cap is optional. When provided, it is applied after the bonus calculation.
-- Repeat-transaction alerts are indicators for human review, not proof of fraud.
-- The repeat-alert threshold is interpreted as the number of matching transactions that must be exceeded before an alert is generated.
+- Purchase and refund amounts are in integer paise.
+- Only captured purchases get reward points.
+- A refund should belong to an existing captured transaction.
+- Refund amounts should be positive integers.
+- The total refund should not be more than the original purchase amount.
+- The points cap is optional and is applied after the bonus.
+- Repeat-transaction alerts are only for manual checking. They do not prove fraud.
+- An alert is generated when the number of matching transactions is greater than the threshold.

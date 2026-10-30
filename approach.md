@@ -1,112 +1,120 @@
-# Implementation Approach — RewardBook
+# My Approach — RewardBook
 
-## 1. Understanding the problem
+## 1. What I understood from the task
 
-The objective was to implement reliable reward-point processing for captured purchases, refunds and possible repeat transactions.
+The task was to work on the reward points system. It should give points for captured purchases, handle refunds, and identify transactions that look repeated.
 
-The implementation needed to ensure:
+The main things I focused on were:
 
-- Correct reward calculation using integer arithmetic.
-- Reward points are awarded only for captured purchases.
-- Repeated events do not process the same reward twice.
-- Refunds reverse points proportionally.
-- The points balance does not become negative through valid refund processing.
-- Each accepted purchase or refund event has an auditable ledger entry.
-- Similar transactions can be flagged for human review.
+- Calculating points correctly using integer arithmetic.
+- Giving points only for captured purchases.
+- Making sure the same event is not processed again.
+- Reversing points when a refund happens.
+- Keeping the points balance correct.
+- Keeping a ledger entry for accepted purchase and refund events.
+- Finding similar transactions so they can be checked manually.
 
-## 2. Understanding the existing codebase
+## 2. First, I checked the existing files
 
-The project is organized into separate modules:
+I went through the project files to understand how the code was arranged.
 
-- `models.py`: Creates the initial account structure, including balance, processed event IDs, transactions and ledger.
-- `fixtures.py`: Provides sample accounts, transactions and reward rules.
-- `service.py`: Contains reward calculation, event processing and repeat-transaction detection.
-- `main.py`: Runs a sample calculation and repeat-transaction check.
-- `tests/`: Contains contract tests and acceptance tests.
+- `models.py` creates the account structure. It has the balance, processed event IDs, transactions and ledger.
+- `fixtures.py` contains sample accounts, transactions and reward rules.
+- `service.py` has the main reward calculation, event processing and repeat-transaction logic.
+- `main.py` runs a small example.
+- `tests/` contains the contract tests and acceptance tests.
 
-The main implementation work was focused on `service.py`.
+Most of my implementation work was in `service.py`.
 
-## 3. Baseline investigation
+## 3. I ran the tests before making changes
 
-Before modifying the implementation, the existing test suite was executed.
+Before changing the code, I ran the test suite to see what was already failing.
 
-**Baseline result:**
-- Passed: 147
-- Failed: 67
+The result was:
 
-The failures highlighted issues in:
+```text
+147 passed, 67 failed
+```
 
-- Floor-based reward calculations.
-- Bonus and points-cap handling.
-- Duplicate event processing.
-- Purchase transaction consistency.
-- Refund validation and amount boundaries.
+The failures were mainly related to:
 
-The baseline output was preserved in `baseline-test-results.txt`.
+- Reward points calculation.
+- Bonus and cap handling.
+- Processing the same event more than once.
+- Purchase transaction details.
+- Refund amount validation.
 
-## 4. Implementation decisions
+I saved this output in `baseline-test-results.txt`.
 
-### A. Reward calculation
+## 4. Changes I made
 
-Replaced floating-point rounding with integer floor division.
+### A. Reward points calculation
 
-The calculation now applies the bonus percentage before applying the optional cap. A cap of zero is treated as a valid value.
+I changed the calculation to use integer floor division instead of floating-point rounding.
 
-### B. Event idempotency
+```python
+base = (amount_paise // 10000) * points_per_100_rupees
+```
 
-Added a check against previously processed event IDs.
+The bonus is calculated after the base points, and the cap is applied at the end. I also made sure that a cap of zero is accepted.
 
-If an event ID has already been processed, the account state is returned without applying the event again.
+### B. Duplicate event check
+
+I added a check for event IDs that have already been processed.
+
+If the same event comes again, the function returns without applying it again.
 
 ### C. Refund validation
 
-Added checks to reject:
+I added checks for refund values. The code rejects values that are not integers, values that are zero or negative, and refunds that go beyond the remaining purchase amount.
 
-- Non-integer refund amounts.
-- Zero or negative refund amounts.
-- Refunds that exceed the remaining refundable purchase amount.
+### D. Partial refund calculation
 
-### D. Proportional refund reversal
+For a partial refund, I used the total refunded amount to calculate how many points should be reversed.
 
-The implementation calculates the cumulative points that should be reversed based on the cumulative refunded amount.
+The code then subtracts only the difference between the new reversal amount and the points already reversed. This helps avoid reversing the same points again.
 
-Only the difference between the newly calculated reversal and the previous reversal is deducted from the balance.
+### E. Repeat transaction check
 
-### E. Repeat-transaction detection
+I grouped transactions using account ID, date and amount.
 
-Transactions are grouped using:
+If the number of matching transactions is greater than the given threshold, the group is returned as a possible repeat. These results are only for review.
 
-- Account ID.
-- Transaction date.
-- Transaction amount.
+## 5. How I checked the changes
 
-A group is flagged when its transaction count exceeds the configured threshold.
-
-## 5. Verification
-
-The implementation was checked using the existing contract and acceptance test suites.
-
-The verified full-suite result was:
-
-```text
-214 passed
-```
-
-The test command used was:
+After making the changes, I ran:
 
 ```bash
 python -m pytest -q
 ```
 
-The Python environment used was Python 3.14.4.
+The final result was:
 
-## 6. Scope and limitations
+```text
+214 passed
+```
 
-The implementation focuses on the supplied in-memory account and transaction structures.
+I also ran:
 
-The following areas require further work:
+```bash
+python -m main
+```
 
-- Explicit validation of missing event and transaction identifiers.
-- Validation of malformed purchase amounts and reward-rule types.
-- Persistent storage and concurrent event-processing safety.
-- Additional tests for malformed purchase events and missing identifiers.
+The output was:
+
+```text
+Points example: 27
+Repeat warnings: []
+```
+
+## 6. What can be improved next
+
+The current implementation uses the in-memory account and transaction structures provided in the project.
+
+Some things that still need more work are:
+
+- Checking missing event IDs and transaction IDs.
+- Checking invalid purchase amounts and reward-rule values.
+- Adding more tests for these invalid inputs.
+- Using a database to store account and transaction data.
+- Handling multiple events safely when they are processed at the same time.

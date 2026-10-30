@@ -1,128 +1,84 @@
-# Challenges Faced — RewardBook
+# Challenges I Faced
 
-## 1. Incorrect reward-point calculation
+## 1. Reward points were not calculating correctly
 
-**Challenge**
+When I first ran the tests, I found that some reward points were getting calculated incorrectly near the ₹100 limit.
 
-The original implementation used floating-point division and rounding to calculate reward points. This produced incorrect results near ₹100 boundaries.
+For example, for 19,999 paise, the expected points were 1, but the old code was returning 2.
 
-**Evidence**
+The issue was that the old code was using floating-point calculation and rounding. But according to the reward rule, I needed to use floor division.
 
-The baseline contract test `test_points_use_floor` failed for an amount of 19,999 paise. The expected result was 1 point, but the original implementation returned 2.
-
-**Root cause**
-
-Rounding was used where the reward rules required floor division.
-
-**Resolution**
-
-Replaced floating-point rounding with integer floor division:
+I changed the calculation to use integer division:
 
 ```python
 base = (amount_paise // 10000) * points_per_100_rupees
 ```
 
-The bonus calculation also uses integer arithmetic.
+I also kept the bonus calculation in integer arithmetic.
 
-## 2. Zero points cap was ignored
+## 2. Zero points cap was not working
 
-**Challenge**
+Another issue was with `cap_points = 0`.
 
-A configured points cap of zero was not applied correctly.
+The old code was not applying the cap properly, and the test expected 0 points but got 5.
 
-**Evidence**
-
-The baseline test `test_cap_zero_is_respected` expected zero points but received 5.
-
-**Root cause**
-
-A zero value can be treated as false in conditional checks. Checking whether a cap exists using truthiness incorrectly skips a zero cap.
-
-**Resolution**
-
-The implementation checks whether the cap is `None`:
+This happened because zero can be treated as `False` in Python conditions. So I changed the check to:
 
 ```python
 if cap_points is not None:
 ```
 
-This allows zero to remain a valid cap.
+Now zero is also treated as a valid cap.
 
-## 3. Duplicate event processing
+## 3. Duplicate events
 
-**Challenge**
+I also found an issue when the same event was processed again.
 
-Replaying the same purchase event did not award additional balance points, but the duplicate event ID was appended again to the processed-event list.
+The balance was not getting extra points, but the same event ID was being added again to the processed event list. This was causing the test to fail.
 
-**Evidence**
-
-The contract test `test_purchase_event_once` failed because the processed-event list contained the same ID twice.
-
-**Root cause**
-
-The event ID was not checked before processing the event.
-
-**Resolution**
-
-Added an early duplicate-event check:
+I added a check before processing the event:
 
 ```python
 if event_id in out['processed_event_ids']:
     return out
 ```
 
-This prevents an already processed event from being applied again.
+Now, if the event was already processed, it returns the account without processing it again.
 
-## 4. Invalid refund amounts
+## 4. Refund validation
 
-**Challenge**
+Refund handling was another area where multiple tests were failing.
 
-The original refund implementation allowed invalid refund values to modify transaction refund totals and could produce incorrect balances.
+The old code was not properly checking negative refunds, refunds greater than the original purchase, and invalid refund values.
 
-**Evidence**
+I added checks so that a refund is rejected if it is not an integer, is zero or negative, or exceeds the remaining refundable amount.
 
-Baseline failures included negative refunds, excessive refunds and malformed refund values.
+## 5. Running the tests again
 
-**Root cause**
+After making the changes, I ran the full test suite again.
 
-Refund validation did not adequately check the refund type, positivity or cumulative refund limit.
-
-**Resolution**
-
-Added validation to reject non-integer, non-positive and excessive refund amounts before modifying transaction state.
-
-## 5. Verification and regression testing
-
-**Challenge**
-
-Changes to reward calculations and refund handling needed to be checked against existing contract and acceptance requirements.
-
-**Resolution**
-
-Executed the full pytest suite after implementation changes.
-
-The verified result was:
-
-```text
-214 passed
-```
-
-The original baseline result was:
+Before the changes:
 
 ```text
 147 passed, 67 failed
 ```
 
-The baseline output was retained in `baseline-test-results.txt`.
+After the changes:
 
-## 6. Remaining challenges
+```text
+214 passed
+```
 
-The current implementation still needs stronger validation for:
+I also saved the original test output in `baseline-test-results.txt` so that the initial failures can be checked.
+
+## 6. Things that still need improvement
+
+There are still some cases that need more validation and testing:
 
 - Missing or empty event IDs.
 - Missing transaction IDs.
-- Malformed purchase amounts.
-- Malformed reward-rule values.
-- Persistent storage and concurrent event processing.
+- Invalid purchase amount values.
+- Invalid reward-rule values.
+- Saving data permanently and handling events running at the same time.
 
-These areas should be addressed with additional validation and regression tests.
+These are areas I would work on next.
