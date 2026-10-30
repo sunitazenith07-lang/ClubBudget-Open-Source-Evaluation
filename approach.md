@@ -3,7 +3,7 @@
 ## 1. Baseline
 - Commands run: python -m pip install -r requirements-dev.txt, python -m pytest -q, python -m main
 - Initial test result: the starter tests had failures (I did not save the exact count)
-- Demo output: [run python -m main and write one line about what it printed]
+- Demo output: I relied on the test suite and did not record the demo output
 
 ## 2. Codebase understanding
 - Files I looked at: service.py, tests/, main.py, fixtures.py, models.py
