@@ -88,7 +88,29 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
 
 
 def flag_repeat_transactions(transactions: list[dict], threshold: int=2) -> list[dict]:
-    groups={}
+    if not isinstance(transactions, list) or type(threshold) is not int or threshold < 1:
+        return []
+
+    groups = {}
     for tx in transactions:
-        key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise')); groups.setdefault(key,[]).append(tx.get('transaction_id'))
-    return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':ids} for k,ids in sorted(groups.items(),key=lambda item:str(item[0])) if len(ids)>=threshold]
+        if not isinstance(tx, dict):
+            continue
+        account_id = tx.get('account_id')
+        date = tx.get('date')
+        amount = tx.get('amount_paise')
+        tx_id = tx.get('transaction_id')
+
+        # Skip rows with missing identifiers or invalid amounts
+        if not account_id or not date or not tx_id:
+            continue
+        if type(amount) is not int or amount <= 0:
+            continue
+
+        key = (account_id, date, amount)
+        groups.setdefault(key, []).append(tx_id)
+
+    return [
+        {'account_id': k[0], 'date': k[1], 'amount_paise': k[2], 'transaction_ids': ids}
+        for k, ids in sorted(groups.items(), key=lambda item: str(item[0]))
+        if len(ids) > threshold
+    ]
