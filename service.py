@@ -2,8 +2,7 @@ from copy import deepcopy
 
 
 def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
-    if amount_paise <= 0:
-        return 0
+    if amount_paise <= 0: return 0
     base = (amount_paise // 10000) * points_per_100_rupees
     points = base * (100 + bonus_percent) // 100
     if cap_points is not None:
@@ -24,9 +23,9 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
             out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
     elif kind=='refund_processed' and txn_id in out['transactions']:
         txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
-        if isinstance(refund,int) and not isinstance(refund,bool) and refund > 0 and txn['refunded_paise']+refund <= txn['amount_paise']:
+        if type(refund) is int and refund > 0 and (txn['refunded_paise'] + refund) <= txn['amount_paise']:
             txn['refunded_paise']+=refund
-            should_reverse=txn['awarded_points']*txn['refunded_paise']//txn['amount_paise']
+            should_reverse=txn['awarded_points']*txn['refunded_paise']//max(1,txn['amount_paise'])
             delta=should_reverse-txn['reversed_points']; out['points_balance']-=delta; txn['reversed_points']=should_reverse
             out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':-delta})
     out['processed_event_ids'].append(event_id)
