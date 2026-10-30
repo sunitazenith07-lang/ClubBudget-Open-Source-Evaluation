@@ -50,3 +50,19 @@ def test_cumulative_partial_refunds_and_over_refund_rejected():
     c = apply_reward_event(b, {'event_id': 'E3', 'type': 'refund_processed', 'transaction_id': 'T1', 'amount_paise': 50000}, rules)
     assert b['points_balance'] == 4 and b['transactions']['T1']['refunded_paise'] == 60000
     assert c['points_balance'] == 4 and c['transactions']['T1']['refunded_paise'] == 60000 and 'E3' not in c['processed_event_ids']
+
+def test_refund_event_replay_is_idempotent():
+    rules = {'points_per_100_rupees': 1}
+    a = apply_reward_event(new_account('A'), {'event_id': 'E1', 'type': 'purchase_captured', 'transaction_id': 'T1', 'amount_paise': 100000}, rules)
+    b = apply_reward_event(a, {'event_id': 'E2', 'type': 'refund_processed', 'transaction_id': 'T1', 'amount_paise': 50000}, rules)
+    c = apply_reward_event(b, {'event_id': 'E2', 'type': 'refund_processed', 'transaction_id': 'T1', 'amount_paise': 50000}, rules)
+    assert c['points_balance'] == 5 and c['transactions']['T1']['refunded_paise'] == 50000 and len(c['ledger']) == 2
+
+
+def test_repeat_transactions_skips_missing_fields():
+    rows = [
+        {'transaction_id': '1', 'account_id': 'A', 'date': '2026-10-21', 'amount_paise': 5000},
+        {'transaction_id': '2', 'account_id': 'A', 'date': '2026-10-21', 'amount_paise': 5000},
+        {'transaction_id': '', 'account_id': 'A', 'date': '2026-10-21', 'amount_paise': 5000},
+    ]
+    assert flag_repeat_transactions(rows, threshold=2) == []    
