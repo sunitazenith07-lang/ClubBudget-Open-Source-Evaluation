@@ -8,14 +8,14 @@ Things to fix: Accuracy of points, making sure running things twice doesn't mess
 Proof: 45 failing tests in test_acceptance_matrix.py and test_contract.py.
 
 ## 2. Options considered
-Idea 1: Keep the old setup and just patch the obvious bugs. (Safe and easy, but left holes.)
-Idea 2: Rewrite the logic with proper checks. (Took more code, but much safer and cleaner.)
+Idea 1: Keep the old setup and just patch the obvious bugs
+Idea 2: Rewrite the logic with proper checks
 What we threw out: Keeping every single event ID saved forever. It broke our rules for running things twice safely and keeping account balances stable.
 
 ## 3. Changes implemented
 - Change and reason:
 - Tests that protect correctness: Added checks for refunds
-- Measurement method and result (only if measured): All 214 tests pass now
+- Measurement method and result : All 214 tests pass now
 ## 4. Trade-offs
 Adding more checks makes it way stronger, but makes the code a bit longer.
 Being strict about whole numbers means it will reject decimals. That's fine since our system only uses whole numbers anyway.
