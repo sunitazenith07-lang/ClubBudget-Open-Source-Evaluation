@@ -18,10 +18,23 @@ Fintech loyalty: points formulas, promotional rules, refund reversals, audit led
 
 1. Install Python 3.10+ and Git.
 2. Install dependencies: `python -m pip install -r requirements-dev.txt`
-3. Run visible tests: `python -m pytest -q`
-4. Run the offline demo: `python -m main`
+3. Run the test suite: `python -m pytest -q`
+4. Run the offline application demo: `python -m main`
 
-Some visible tests are expected to fail on the untouched starter because the required behaviour is incomplete. This is intentional. Never delete, skip, weaken or bypass tests to make the check green.
+Final reported verification: `python -m pytest -q` completed with `225 passed in 2.12s`.
+
+Most recently reported demo output:
+
+```text
+Points example: 27
+Repeat warnings: []
+```
+
+The demo uses the sample rules and transactions from `fixtures.py`. The larger `data/records.json` dataset is additional investigation and test material; it is not loaded by `python -m main`.
+
+The repository began with intentionally incomplete starter behavior, but the current reported test run passes. Never delete, skip, weaken or bypass tests to make the check green.
+
+The final regression additions cover missing, `None`, and non-integer purchase amounts without financial mutation, plus accepted zero-amount purchases.
 
 ## Mandatory submission — code plus documentation
 
