@@ -10,8 +10,8 @@
 
 ## Automated run
 - Command: `python -m pytest -q`
-- Total:
-- Passed:
-- Failed:
-- Errors:
-- Skipped:
+- Total: 214
+- Passed:214
+- Failed: 0 
+- Errors: 0 
+- Skipped: 0 
