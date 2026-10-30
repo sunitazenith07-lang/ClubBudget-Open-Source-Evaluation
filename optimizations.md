@@ -3,21 +3,24 @@
 Document optimizations you considered or implemented. Do not claim a speedup or improvement unless you measured it.
 
 ## 1. Baseline and objective
-- What needed improvement (correctness, clarity, complexity, memory, repeated work, maintainability)?
-- What evidence suggested an improvement could help?
+Things to fix: Accuracy of points, making sure running things twice doesn't mess up, refund limits, keeping records correct, and safe inputs.
+
+Proof: 45 failing tests in test_acceptance_matrix.py and test_contract.py.
 
 ## 2. Options considered
-Describe each option's expected benefit and risk, including rejected ideas.
+Idea 1: Keep the old setup and just patch the obvious bugs. (Safe and easy, but left holes.)
+Idea 2: Rewrite the logic with proper checks. (Took more code, but much safer and cleaner.)
+What we threw out: Keeping every single event ID saved forever. It broke our rules for running things twice safely and keeping account balances stable.
 
 ## 3. Changes implemented
 - Change and reason:
-- Tests that protect correctness:
-- Measurement method and result (only if measured):
-
+- Tests that protect correctness: Added checks for refunds
+- Measurement method and result (only if measured): All 214 tests pass now
 ## 4. Trade-offs
-Explain trade-offs involving clarity, correctness, performance, memory, or maintainability.
+Adding more checks makes it way stronger, but makes the code a bit longer.
+Being strict about whole numbers means it will reject decimals. That's fine since our system only uses whole numbers anyway.
 
 ## 5. Further improvements
-What would you do next with more time, and how would you validate it?
-
+Add property-based testing to test refunds and duplicate runs in random ways
+Add schema checks for events if we ever add more features to the API
 If you made no optimization change, state that honestly and compare at least two reasonable options. Correctness and maintainability take priority over unnecessary complexity.
