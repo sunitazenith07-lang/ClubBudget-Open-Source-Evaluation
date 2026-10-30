@@ -41,8 +41,9 @@
 - **Measurement Method and Results:**
   - Full test suite execution time:
     - Baseline with 67 failures: `0.21s` across 214 tests.
-    - Optimized and fixed suite with all 221 tests passing: `0.05s` across 221 tests.
+    - Optimized and fixed suite with all 224 tests passing: `0.06s` across 224 tests.
     - Test execution speed improved by ~4x due to eliminating redundant float conversions and early returns on duplicate/invalid events.
+
 
 ## 4. Trade-offs
 - **Clarity and Correctness over Premature Optimization:**

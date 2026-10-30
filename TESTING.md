@@ -31,5 +31,6 @@ The following defects were resolved and backed by automated regression tests in 
 7. **CSV Statement Generation (Stretch Work):** Added `test_csv_account_statement_generation` verifying header and running balance computation.
 
 ## Remaining failures or limitations
-- There are **zero** remaining test failures across the entire suite. All 214 baseline tests and 7 new regression tests pass cleanly.
+- There are **zero** remaining test failures across the entire suite. All 214 baseline tests and 10 new regression tests pass cleanly (224 total).
 - *Known Limitation:* The current offline implementation operates entirely in memory. For a concurrent multi-threaded environment, distributed locking or transactional database isolation would be necessary to avoid race conditions on high-frequency concurrent refunds for the same account.
+

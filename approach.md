@@ -70,7 +70,7 @@
 ## 5. Verification
 - **Tests added or changed:**
   - Kept all 214 existing baseline tests in `tests/test_contract.py` and `tests/test_acceptance_matrix.py` intact without weakening or modifying them.
-  - Added new dedicated test suite `tests/test_regression.py` containing 7 comprehensive regression tests:
+  - Added new dedicated test suite `tests/test_regression.py` containing 10 comprehensive regression tests:
     - `test_refund_event_replay_is_idempotent`
     - `test_cumulative_partial_refunds_and_over_refund_rejection`
     - `test_proportional_integer_truncation_across_multiple_refunds`
@@ -78,6 +78,9 @@
     - `test_malformed_and_missing_identifiers_handling`
     - `test_cap_zero_and_negative_rules_safeguards`
     - `test_csv_account_statement_generation`
+    - `test_purchase_captured_invalid_amount_safeguards`
+    - `test_repeat_transactions_and_csv_statement_edge_cases`
+    - `test_zero_amount_purchase_refund_branch`
 - **Commands run and actual results:**
   - `python -m pytest -q`: `224 passed in 0.06s` (100% pass rate).
   - `python -m pytest -q --junitxml=/tmp/pytest-report.xml`: verified XML report generation for GitHub Actions CI compatibility.
@@ -101,4 +104,4 @@
   - Negative balance prevention.
   - Malformed and non-integer inputs (`None`, `True`, `False`, `"100"`, `1.5`, `[]`, `{}`).
 - **Remaining failures or known limitations:**
-  - Zero remaining test failures. All 221 tests pass cleanly.
+  - Zero remaining test failures. All 224 tests pass cleanly.
