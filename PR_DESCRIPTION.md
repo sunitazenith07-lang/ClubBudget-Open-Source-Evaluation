@@ -36,7 +36,7 @@ Actual results:
 
 `python -m main` also produces the expected output: `Points example: 27`, `Repeat warnings: []`.
 Environment: Python 3.14.7, pytest 9.2.0.
-CI (GitHub Actions, Python 3.11, run on my fork, at the 314-test commit): 314 passed, 0 failed, 0 errors, 0 skipped. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41121388655
+CI (GitHub Actions, Python 3.11, run on my fork): 319 passed, 0 failed, 0 errors, 0 skipped. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
 
 ## Required problem-solving documents (all three mandatory; 15 marks total)
 - [x] `approach.md` completed (5 marks). It explains the implementation approach and connects the original test failures to the relevant issues in `service.py`.

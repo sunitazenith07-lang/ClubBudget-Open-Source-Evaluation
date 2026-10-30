@@ -12,7 +12,7 @@
   - After handling non-list alert input: `314 passed in 0.64s` (+3 in `tests/test_regressions.py`)
   - After the threshold-fallback and duplicate-ID fixes: `319 passed in 0.64s` (+5 in `tests/test_regressions.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
-  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork, at the 314-test commit): Total 314, Passed 314, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41121388655
+  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 319, Passed 319, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
 ## Automated run
@@ -23,7 +23,7 @@
 - Errors: 0
 - Skipped: 0
 
-(Local run on Python 3.14.7. The last CI run was at 314 tests, before the two latest fixes.)
+(Same counts locally on Python 3.14.7 and in CI on Python 3.11.)
 
 ## Edge-case evidence
 
