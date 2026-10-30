@@ -35,3 +35,65 @@ def test_repeat_group():
 
 def test_different_accounts_not_grouped():
     rows=[{'transaction_id':'1','account_id':'A','date':'D','amount_paise':1000},{'transaction_id':'2','account_id':'B','date':'D','amount_paise':1000}]; assert flag_repeat_transactions(rows,1)==[]
+
+
+def test_invalid_rule_types_do_not_generate_points():
+    assert calculate_points(100000, True) == 0
+    assert calculate_points(100000, 1, bonus_percent=1.5) == 0
+    assert calculate_points(100000, 1, cap_points='10') == 0
+
+
+def test_missing_event_identifier_does_not_apply_purchase():
+    account = new_account('A')
+    event = {'type':'purchase_captured','transaction_id':'T','amount_paise':100000}
+
+    result = apply_reward_event(account, event, {'points_per_100_rupees':1})
+
+    assert result == account
+
+
+def test_refund_replay_and_ledger_are_idempotent():
+    rules = {'points_per_100_rupees':1}
+    account = apply_reward_event(new_account('A'), {'event_id':'P','type':'purchase_captured','transaction_id':'T','amount_paise':100000}, rules)
+    refund = {'event_id':'R','type':'refund_processed','transaction_id':'T','amount_paise':25000}
+
+    once = apply_reward_event(account, refund, rules)
+    replay = apply_reward_event(once, refund, rules)
+
+    assert replay['points_balance'] == 8
+    assert replay['transactions']['T']['refunded_paise'] == 25000
+    assert replay['transactions']['T']['reversed_points'] == 2
+    assert len(replay['ledger']) == 2
+    assert replay['ledger'][-1] == {
+        'event_id':'R',
+        'transaction_id':'T',
+        'account_id':'A',
+        'type':'refund_processed',
+        'amount_paise':25000,
+        'points_delta':-2,
+        'balance_after':8,
+    }
+
+
+def test_multiple_partial_refunds_round_cumulatively_and_respect_original_amount():
+    rules = {'points_per_100_rupees':1}
+    account = apply_reward_event(new_account('A'), {'event_id':'P','type':'purchase_captured','transaction_id':'T','amount_paise':30000}, rules)
+    account = apply_reward_event(account, {'event_id':'R1','type':'refund_processed','transaction_id':'T','amount_paise':10000}, rules)
+    account = apply_reward_event(account, {'event_id':'R2','type':'refund_processed','transaction_id':'T','amount_paise':10000}, rules)
+    result = apply_reward_event(account, {'event_id':'R3','type':'refund_processed','transaction_id':'T','amount_paise':10001}, rules)
+
+    assert result['transactions']['T']['refunded_paise'] == 20000
+    assert result['transactions']['T']['reversed_points'] == 2
+    assert result['points_balance'] == 1
+    assert [entry['balance_after'] for entry in result['ledger']] == [3, 2, 1]
+
+
+def test_repeat_alert_skips_missing_and_duplicate_transaction_ids():
+    rows = [
+        {'transaction_id':'T1','account_id':'A','date':'D','amount_paise':1000},
+        {'transaction_id':'T1','account_id':'A','date':'D','amount_paise':1000},
+        {'account_id':'A','date':'D','amount_paise':1000},
+        {'transaction_id':'T2','account_id':'A','date':'D','amount_paise':1000},
+    ]
+
+    assert flag_repeat_transactions(rows, threshold=2) == []
