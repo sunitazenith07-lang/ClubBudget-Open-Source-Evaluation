@@ -39,5 +39,5 @@ Nothing completely blocked me, but these were the parts that took the most figur
 - Things that could still go wrong: an amount sent as a string like `"100000"` is rejected, not converted. So if another system sent strings, real purchases would earn nothing.
 
 ## 6. Unresolved challenge or next step
-- I'm not sure whether amount-0 repeats should trigger an alert. That's really a product decision, so I'd ask. If they should, it's a one-character change (`<= 0` to `< 0`) plus updating one test.
+- I'm not sure whether amount-0 repeats should trigger an alert. That's really a product decision, so I'd ask. If they should, it's a one-character change (`<= 0` to `< 0`) plus updating two tests: `test_dataset_repeat_groups_are_flagged` and the reference check in `tests/test_stress.py`.
 - If someone already spent their points and then gets a refund, the code only takes back what's left in the balance. A real system would need to track "points owed".

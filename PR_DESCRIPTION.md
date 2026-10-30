@@ -1,5 +1,5 @@
 ## What did you change?
-Fixed the three functions in `service.py` to meet all eight required behaviours and added 35 regression tests in `tests/test_regressions.py`.
+Fixed the three functions in `service.py` to meet all eight required behaviours and added 97 new tests (regression, stretch-item and randomized stress tests) in `tests/test_regressions.py`, `tests/test_threshold_config.py` and `tests/test_stress.py`.
 
 - `calculate_points`: Fixed point calculation to use floor division, corrected bonus and cap handling, and added input validation.
 - `apply_reward_event`: Added duplicate event protection, transaction validation, refund limits and cumulative refund calculations. Updated ledger entries to include transaction details and the resulting balance.
@@ -14,7 +14,7 @@ The original implementation had several issues:
 - `if cap_points:` failed to recognise 0 as a valid cap.
 - Processed event IDs were stored but never checked, allowing duplicate events to affect the balance.
 - Refund amounts were not properly validated, allowing invalid and oversized refunds.
-- Input type validation was missing. In Python, booleans can also pass an `isinstance(value, int)` check.
+- There was no input type checking. A plain `isinstance(value, int)` check isn't enough either, because `True`/`False` pass it.
 
 ## Tests
 - [x] I ran `python -m pytest -q`.
@@ -46,7 +46,7 @@ Environment: Python 3.14.7, pytest 9.2.0.
 4. Refunds totalling more than the original purchase should be rejected. Actual: The second refund was rejected.
 5. Reaching the repeat transaction threshold exactly should not trigger an alert. Exceeding it should generate one alert. Actual: Worked as expected.
 
-A full set of 10 cases is documented in `TESTING.md`.
+A full set of 11 cases is documented in `TESTING.md`.
 
 ## Design decisions / limitations
 - Invalid reward rules return 0 points instead of being automatically corrected.

@@ -1,7 +1,7 @@
 # TESTING.md — Required submission
 
 ## Test command and environment
-- Python version: 3.14.7 (Homebrew on macOS), pytest 9.2.0, inside a virtual environment
+- Python version: 3.14.7 (Homebrew on macOS), pytest 9.2.0, inside a virtual environment. CI (GitHub Actions) uses Python 3.11; locally I used 3.14.7.
 - Command run: `python -m pytest -q` and `python -m main`
 - Actual test summary:
   - Before my changes (starter code): `67 failed, 147 passed in 0.17s`
@@ -41,7 +41,7 @@ Stretch item tests, in `tests/test_threshold_config.py`: `test_threshold_read_fr
 
 I didn't edit, skip or delete any existing test, and I didn't change the CI workflow.
 
-I also added `tests/test_stress.py` (34 tests). Instead of one hand-picked example, each test generates thousands of random inputs from a fixed seed and checks rules that should always hold: points match a second calculation written a different way, spending more never earns fewer points, the balance is never negative and always equals the ledger total, sending an event twice changes nothing, split refunds always end at 0, junk input never crashes, and shuffling transactions gives the same alerts. This is what found the list/dict crash and the ID-order issue (case 10).
+I also added `tests/test_stress.py` (34 tests). Instead of one hand-picked example, each test generates thousands of random inputs from a fixed seed and checks rules that should always hold: points match a second calculation written a different way, spending more never earns fewer points, the balance is never negative and always equals the ledger total, sending an event twice changes nothing, split refunds always end at 0, junk input never crashes, and shuffling transactions gives the same alerts. This is what found the list/dict crash (case 10) and the ID-order issue (`test_alert_transaction_ids_do_not_depend_on_input_order`).
 
 ## Remaining failures or limitations
 - No failing tests.
