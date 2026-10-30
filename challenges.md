@@ -1,23 +1,27 @@
 # challenges.md - COMPULSORY submission
 
-This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
-
 ## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+The refund handling was the most confusing part: an excessive refund had to leave the account completely unchanged, including `refunded_paise`, `reversed_points`, balance, and ledger length.
 
 ## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
+Example from the suite: purchase of 100000 paise (10 points), then refund of 125000 paise. Expected `refunded_paise == 0` and `points_balance == 10`. The old code capped the refund to 100000 and reversed all 10 points.
 
 ## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+- Ran `python -m pytest -q` to establish the 173 passed / 41 failed baseline.
+- Inspected `calculate_points` and found `round(amount_paise / 10000)` instead of floor.
+- Traced refund failures and found `max(0, ...)` coercion plus `min(...)` capping.
+- Checked `data/records.json` rule cases for negative `per`, bonus, and cap values.
 
 ## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+The root cause was treating invalid/excessive refunds as partial valid refunds. I replaced coercion/capping with strict validation: refund must be a positive integer and `refunded_paise + refund <= transaction amount`. Invalid refunds now leave state unchanged but are still marked processed for idempotency. Points calculation now uses floor and integer-only validation.
 
 ## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
+- `test_integer_floor_points_calculation`
+- `test_bonus_and_cap_matrix`
+- `test_refund_amount_bounds_and_balance`
+- `test_invalid_or_excess_refund_does_not_change_account`
+- `test_invalid_or_excess_refund_ignored`
+Final run: `214 passed in 0.13s`.
 
 ## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
-
-If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.
+No visible failures remain. A future improvement would be stricter account/event schema validation and property-based tests for cumulative refund sequences.
