@@ -27,8 +27,9 @@ Actual results:
 - After changes: 249 passed, 0 failed.
 - After the stretch item: 264 passed, 0 failed.
 - After stress-test fixes: 277 passed, 0 failed.
+- After adding the stress tests: 311 passed, 0 failed.
 - Original tests: 214.
-- New regression tests: 35, plus 15 for the stretch item, plus 13 from stress testing.
+- New regression tests: 35, plus 15 for the stretch item, plus 13 from stress testing, plus 34 randomized stress tests in `tests/test_stress.py`.
 
 `python -m main` also produces the expected output: `Points example: 27`, `Repeat warnings: []`.
 Environment: Python 3.14.7, pytest 9.2.0.

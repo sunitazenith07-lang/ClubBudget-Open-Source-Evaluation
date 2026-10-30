@@ -23,7 +23,7 @@ Nothing completely blocked me, but these were the parts that took the most figur
 2. I worked out both refund methods by hand for the example above, then ran the fixed code to check the ledger showed `balance_after` 96 and then 0.
 3. I looked at which inputs were failing in `test_invalid_or_excess_refund_does_not_change_account`. The boolean ones were in there.
 4. I counted the dataset fields with a small script before deciding what to do.
-5. I wrote a separate random test script (not part of the submission) that checks things that should always be true. For example: the balance is never negative, the ledger adds up to the balance, and sending the same event twice changes nothing. It also tries junk values for every field.
+5. I wrote random stress tests (now in `tests/test_stress.py`) that check things that should always be true. For example: the balance is never negative, the ledger adds up to the balance, and sending the same event twice changes nothing. They also try junk values for every field.
 6. I also made a mistake in one of my own tests. I first wrote that `calculate_points(300000, 3, 150, 300)` should be 22, but working it out again gives 30 × 3 = 90, then 90 × 250 // 100 = 225. I fixed it before running.
 
 ## 4. Resolution
@@ -35,7 +35,7 @@ Nothing completely blocked me, but these were the parts that took the most figur
 
 ## 5. Proof and regression prevention
 - Tests: `test_partial_refunds_sum_to_full_reversal`, `test_cumulative_refunds_cannot_exceed_purchase`, `test_invalid_purchase_amount_creates_no_transaction[True]`, `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_reward_events_keep_ledger_consistent` (all in `tests/test_regressions.py`).
-- Final run: `277 passed in 0.07s`.
+- Final run: `311 passed in 0.62s` (including the 34 stress tests).
 - Things that could still go wrong: an amount sent as a string like `"100000"` is rejected, not converted. So if another system sent strings, real purchases would earn nothing.
 
 ## 6. Unresolved challenge or next step

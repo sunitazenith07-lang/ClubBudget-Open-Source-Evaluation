@@ -44,11 +44,12 @@
 ## 5. Verification
 - Tests added or changed: I added `tests/test_regressions.py`. It covers bad rules and amounts, duplicate events, missing IDs, retrying after a rejection, refund limits, partial refunds, the balance never going negative, ledger fields, alert edge cases, and replaying the whole dataset. I didn't edit, skip or delete any existing tests.
 - Stretch item (configurable threshold): the alert threshold can now be changed. `repeat_threshold_from_config()` reads `repeat_alert_threshold` from a config dict (it falls back to 2 if the value is missing or bad), and `python -m main --threshold N` sets it from the command line. The default behaviour is the same as before. Tests are in `tests/test_threshold_config.py`.
-- Stress testing: I ran a few thousand random inputs against the code. That found a crash when an ID was a list or dict, which I fixed (see `challenges.md`).
+- Stress testing: I added `tests/test_stress.py`, which runs a few thousand random inputs against the code. That found a crash when an ID was a list or dict, which I fixed (see `challenges.md`).
 - Commands run and actual results: `python -m pytest -q` gave:
   - `249 passed` after the main fix (214 original + 35 new)
   - `264 passed` after the stretch item
   - `277 passed in 0.07s` after the stress-test fixes
+  - `311 passed in 0.62s` after adding the stress tests to `tests/test_stress.py`
 
   `python -m main` gives `Points example: 27` and `Repeat warnings: []`.
 - Edge cases verified: 9999 / 10000 / 19999 paise, cap 0, bonus over 100%, `True`/`"100"`/`1.5` amounts, a refund equal to the purchase, a refund 1 paisa too big, a repeated refund, and a threshold exactly reached vs. exceeded.

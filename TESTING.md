@@ -8,6 +8,7 @@
   - After the main fix: `249 passed in 0.06s` (214 original + 35 new; nothing failed or skipped)
   - After the stretch item: `264 passed in 0.06s` (+15 in `tests/test_threshold_config.py`)
   - After the stress-test fixes: `277 passed in 0.07s` (+13 in `tests/test_regressions.py`)
+  - After adding the stress tests: `311 passed in 0.62s` (+34 in `tests/test_stress.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
@@ -40,7 +41,7 @@ Stretch item tests, in `tests/test_threshold_config.py`: `test_threshold_read_fr
 
 I didn't edit, skip or delete any existing test, and I didn't change the CI workflow.
 
-I also ran a separate random stress test (thousands of generated inputs, not part of the submission). That's what found the list/dict crash and the ID-order issue that tests 10 and above now cover.
+I also added `tests/test_stress.py` (34 tests). Instead of one hand-picked example, each test generates thousands of random inputs from a fixed seed and checks rules that should always hold: points match a second calculation written a different way, spending more never earns fewer points, the balance is never negative and always equals the ledger total, sending an event twice changes nothing, split refunds always end at 0, junk input never crashes, and shuffling transactions gives the same alerts. This is what found the list/dict crash and the ID-order issue (case 10).
 
 ## Remaining failures or limitations
 - No failing tests.
