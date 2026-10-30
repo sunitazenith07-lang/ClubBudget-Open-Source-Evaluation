@@ -1,28 +1,43 @@
 ## What did you change?
-Summarise the behaviour you corrected or feature implemented.
+- Replaced floating-point rounding with integer floor division (`//`) in `calculate_points`.
+- Fixed `cap_points = 0` being ignored due to Python's truthiness check.
+- Added event-level idempotency to prevent duplicate ledger entries when events are replayed.
+- Added input validation for refunds (positive ints, non-bool, not exceeding transaction amount) and implemented cumulative proportional reversals to avoid remainder drift.
+- Added regression tests in `tests/test_regression.py`.
+- Completed all required documentation files (`approach.md`, `challenges.md`, `optimizations.md`, `TESTING.md`, `REWARD_RULE_NOTES.md`).
 
 ## Root cause
-Explain the observed problem and why it occurred.
+1. Using `round()` instead of integer floor caused 9999 paise to round up to 100 rupees and earn points.
+2. `if cap_points:` treated 0 as falsy and skipped the cap.
+3. `processed_event_ids.append(event_id)` was run unconditionally, so replayed events duplicated ledger rows.
+4. Refunds were not checked against the original purchase amount, and calculating reversals on isolated chunks lost points to integer truncation.
 
 ## Tests
-- [ ] I ran `python -m pytest -q`.
-- [ ] I added or updated regression tests for my change.
-- [ ] I did not delete, skip, weaken or bypass existing tests.
-Paste the actual test summary and describe any remaining failures.
+- [x] I ran `python -m pytest -q`.
+- [x] I added or updated regression tests for my change.
+- [x] I did not delete, skip, weaken or bypass existing tests.
+
+Actual test summary:
+`220 passed in 0.35s` (all 214 baseline tests pass, plus 6 new regression tests).
 
 ## Required problem-solving documents (all three mandatory; 15 marks total)
-- [ ] `approach.md` completed (5 marks).
-- [ ] `challenges.md` completed (COMPULSORY; 5 marks).
-- [ ] `optimizations.md` completed (5 marks).
-Briefly mention the most important evidence or insight from each file. Empty/generic/copied files are incomplete.
+- [x] `approach.md` completed (5 marks).
+- [x] `challenges.md` completed (COMPULSORY; 5 marks).
+- [x] `optimizations.md` completed (5 marks).
 
 ## Edge cases checked
-List at least three cases, their expected behaviour, and what happened.
+1. `amount_paise = 9999`: awards 0 points.
+2. `cap_points = 0`: awards 0 points.
+3. Multi-step partial refund (30% + 30% + 40%): reverses all 10 awarded points without truncation drift.
+4. Boolean amounts (`True`/`False`): rejected as non-numeric amounts.
+5. Duplicate event replay: recognized and ignored without mutating balance or ledger.
 
 ## Design decisions / limitations
-State assumptions, trade-offs and known gaps. Include any required challenge-specific notes file.
+- Used native integer division (`//`) for performance and exactness without needing `decimal.Decimal`.
+- Used `deepcopy` to ensure account dictionaries passed to `apply_reward_event` are never modified in-place.
+- Service is currently in-memory; production deployment would need database transaction locks.
 
 ## Integrity confirmation
-- [ ] This is my own individual work.
-- [ ] I have followed the evaluation's AI-use policy.
-- [ ] I can explain my changes and make a small live modification if asked.
+- [x] This is my own individual work.
+- [x] I have followed the evaluation's AI-use policy.
+- [x] I can explain my changes and make a small live modification if asked.
