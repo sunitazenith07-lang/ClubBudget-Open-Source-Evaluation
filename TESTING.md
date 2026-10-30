@@ -11,7 +11,7 @@
   - After adding the stress tests: `311 passed in 0.62s` (+34 in `tests/test_stress.py`)
   - After handling non-list alert input: `314 passed in 0.64s` (+3 in `tests/test_regressions.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
-  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 311, Passed 311, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41118478250
+  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 314, Passed 314, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41121388655
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
 ## Automated run
@@ -22,7 +22,7 @@
 - Errors: 0
 - Skipped: 0
 
-(Local run on Python 3.14.7. The CI run on Python 3.11 is listed above.)
+(Same counts locally on Python 3.14.7 and in CI on Python 3.11.)
 
 ## Edge-case evidence
 
