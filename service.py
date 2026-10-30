@@ -65,12 +65,23 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
             out['processed_event_ids'].append(event_id)
 
     elif kind == 'refund_processed' and txn_id in out['transactions']:
-        txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
-        # Starter defect: refund bounds and duplicate event IDs need validation.
-        txn['refunded_paise']+=refund
-        should_reverse=txn['awarded_points']*txn['refunded_paise']//max(1,txn['amount_paise'])
-        delta=should_reverse-txn['reversed_points']; out['points_balance']-=delta; txn['reversed_points']=should_reverse
-        out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':-delta})
+        txn = out['transactions'][txn_id]
+        refund = event.get('amount_paise', 0)
+
+        # Refund must be a positive integer and total refunded cannot exceed purchase amount
+        if type(refund) is not int or refund <= 0:
+            return out
+        if txn['refunded_paise'] + refund > txn['amount_paise']:
+            return out
+
+        txn['refunded_paise'] += refund
+        should_reverse = (txn['awarded_points'] * txn['refunded_paise']) // max(1, txn['amount_paise'])
+        delta = should_reverse - txn['reversed_points']
+        delta = max(0, min(delta, out['points_balance']))
+
+        out['points_balance'] -= delta
+        txn['reversed_points'] += delta
+        out['ledger'].append({'event_id': event_id, 'type': kind, 'points_delta': -delta})
         out['processed_event_ids'].append(event_id)
 
     return out
