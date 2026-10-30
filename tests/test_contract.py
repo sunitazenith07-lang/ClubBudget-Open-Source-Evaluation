@@ -35,3 +35,28 @@ def test_repeat_group():
 
 def test_different_accounts_not_grouped():
     rows=[{'transaction_id':'1','account_id':'A','date':'D','amount_paise':1000},{'transaction_id':'2','account_id':'B','date':'D','amount_paise':1000}]; assert flag_repeat_transactions(rows,1)==[]
+
+
+def test_regression_invalid_type_amount():
+    assert calculate_points(None, 1) == 0 and calculate_points('10000', 1) == 0
+
+def test_regression_fractional_amount():
+    assert calculate_points(10000.5, 1) == 0
+
+def test_regression_negative_rule_values():
+    assert calculate_points(10000, -1) == 0 and calculate_points(10000, 1, bonus_percent=-10) == 0
+
+def test_regression_missing_event_id():
+    a = new_account('A')
+    assert apply_reward_event(a, {'type':'purchase_captured','transaction_id':'T','amount_paise':10000}, {})['points_balance'] == 0
+
+def test_regression_missing_txn_id():
+    a = new_account('A')
+    assert apply_reward_event(a, {'event_id':'E1','type':'purchase_captured','amount_paise':10000}, {})['points_balance'] == 0
+
+def test_regression_balance_never_negative():
+    a = new_account('A')
+    a['points_balance'] = 1
+    a['transactions']['T'] = {'amount_paise':100000,'awarded_points':10,'reversed_points':0,'refunded_paise':0}
+    res = apply_reward_event(a, {'event_id':'R1','type':'refund_processed','transaction_id':'T','amount_paise':100000}, {})
+    assert res['points_balance'] >= 0
