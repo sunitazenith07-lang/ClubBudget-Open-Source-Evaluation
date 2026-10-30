@@ -54,16 +54,16 @@ The untouched starter is expected to have some failing visible tests because beh
 
 Before the deadline, verify each item below. **A code change alone is not a complete submission.**
 
-- [ ] I read this problem statement, `STUDENT_START_HERE.md`, `README.md`, the contribution guide, all relevant source files, the synthetic data documentation, every visible test, and the GitHub Actions workflow.
-- [ ] I ran `python -m pip install -r requirements-dev.txt`, recorded the untouched baseline result from `python -m pytest -q`, and ran `python -m main`.
-- [ ] I fixed the underlying causes of relevant failures and added regression tests. I did not delete, skip, weaken, hard-code around, or bypass existing tests or edit CI to hide failures.
-- [ ] I completed the existing `approach.md`, `challenges.md`, and `optimizations.md` templates at the repository root. Each must describe my own work and evidence; `challenges.md` is compulsory. Each is worth 5 marks.
-- [ ] I completed `TESTING.md` with the real Python version, commands and test summary, plus at least five edge cases showing input, expected behaviour, actual result, and test/evidence.
-- [ ] I completed `REWARD_RULE_NOTES.md`. Include (1) one worked points calculation from purchase amount through bonuses/caps, (2) one partial-refund/reversal example, (3) assumptions, and (4) at least three edge cases.
-- [ ] I reviewed the diff, kept the change focused, and ensured I did not commit secrets, credentials, or unrelated files.
-- [ ] I opened **one pull request from my fork to this original repository**, included code, tests and all required documents, filled in the pull-request template, and **did not merge the pull request**.
-- [ ] I checked the pull-request CI result and documented any remaining failures honestly.
-- [ ] I can explain the changes independently and make a small live modification if requested.
+- [done ] I read this problem statement, `STUDENT_START_HERE.md`, `README.md`, the contribution guide, all relevant source files, the synthetic data documentation, every visible test, and the GitHub Actions workflow.
+- [ done] I ran `python -m pip install -r requirements-dev.txt`, recorded the untouched baseline result from `python -m pytest -q`, and ran `python -m main`.
+- [done ] I fixed the underlying causes of relevant failures and added regression tests. I did not delete, skip, weaken, hard-code around, or bypass existing tests or edit CI to hide failures.
+- [done ] I completed the existing `approach.md`, `challenges.md`, and `optimizations.md` templates at the repository root. Each must describe my own work and evidence; `challenges.md` is compulsory. Each is worth 5 marks.
+- [ done] I completed `TESTING.md` with the real Python version, commands and test summary, plus at least five edge cases showing input, expected behaviour, actual result, and test/evidence.
+- [done ] I completed `REWARD_RULE_NOTES.md`. Include (1) one worked points calculation from purchase amount through bonuses/caps, (2) one partial-refund/reversal example, (3) assumptions, and (4) at least three edge cases.
+- [done ] I reviewed the diff, kept the change focused, and ensured I did not commit secrets, credentials, or unrelated files.
+- [ done] I opened **one pull request from my fork to this original repository**, included code, tests and all required documents, filled in the pull-request template, and **did not merge the pull request**.
+- [done ] I checked the pull-request CI result and documented any remaining failures honestly.
+- [ done] I can explain the changes independently and make a small live modification if requested.
 
 If any item is incomplete, finish it before submitting. Record actual results only; never claim a test passed unless it was run. Follow the individual-work and AI-use policy below.
 

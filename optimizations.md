@@ -1,23 +1,26 @@
 # optimizations.md - Required submission
 
-Document optimizations you considered or implemented. Do not claim a speedup or improvement unless you measured it.
-
 ## 1. Baseline and objective
-- What needed improvement (correctness, clarity, complexity, memory, repeated work, maintainability)?
-- What evidence suggested an improvement could help?
+- Needed improvement: correctness of points, idempotency, refund bounds, ledger integrity, and input safety.
+- Evidence: 45 failing tests in `test_acceptance_matrix.py` and `test_contract.py`.
 
 ## 2. Options considered
-Describe each option's expected benefit and risk, including rejected ideas.
+- Keep starter structure and patch only obvious lines: lower risk but left validation gaps.
+- Rewrite control flow with explicit validation: more code but clearer and safer.
+- Rejected keeping all event IDs appended because it violated idempotency and account-unchanged expectations.
 
 ## 3. Changes implemented
-- Change and reason:
-- Tests that protect correctness:
-- Measurement method and result (only if measured):
+- Added early type and range validation in `calculate_points`.
+- Added event-id idempotency before mutation.
+- Added refund validation and cumulative proportional reversal.
+- Added safe guards in `flag_repeat_transactions`.
+- Tests that protect correctness: all 214 tests, especially replay and refund boundary tests.
+- No performance benchmark was measured; changes focus on correctness.
 
 ## 4. Trade-offs
-Explain trade-offs involving clarity, correctness, performance, memory, or maintainability.
+- More validation improves robustness but increases code size.
+- Strict integer validation may reject non-integer numeric inputs; acceptable for the integer-arithmetic contract.
 
 ## 5. Further improvements
-What would you do next with more time, and how would you validate it?
-
-If you made no optimization change, state that honestly and compare at least two reasonable options. Correctness and maintainability take priority over unnecessary complexity.
+- Add property-based tests for cumulative refunds and idempotency.
+- Add schema validation for events if the service API expands.
