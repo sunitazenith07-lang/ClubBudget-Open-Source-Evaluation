@@ -24,22 +24,55 @@ def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percen
 
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
-    out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('ledger',[]); out.setdefault('transactions',{})
-    event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
-    if kind=='purchase_captured':
-        amount=event.get('amount_paise',0)
-        points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
+    out = deepcopy(account)
+    out.setdefault('points_balance', 0)
+    out.setdefault('processed_event_ids', [])
+    out.setdefault('ledger', [])
+    out.setdefault('transactions', {})
+
+    if not isinstance(event, dict) or not isinstance(rules, dict):
+        return out
+
+    event_id = event.get('event_id')
+    kind = event.get('type')
+    txn_id = event.get('transaction_id')
+
+    # Ignore missing identifiers or duplicate event_id replays
+    if not event_id or not txn_id:
+        return out
+    if event_id in out['processed_event_ids']:
+        return out
+
+    if kind == 'purchase_captured':
+        amount = event.get('amount_paise', 0)
+        if type(amount) is not int or amount <= 0:
+            return out
         if txn_id not in out['transactions']:
-            out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
-            out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
-    elif kind=='refund_processed' and txn_id in out['transactions']:
+            points = calculate_points(
+                amount,
+                rules.get('points_per_100_rupees', 1),
+                rules.get('bonus_percent', 0),
+                rules.get('cap_points')
+            )
+            out['transactions'][txn_id] = {
+                'amount_paise': amount,
+                'awarded_points': points,
+                'reversed_points': 0,
+                'refunded_paise': 0
+            }
+            out['points_balance'] += points
+            out['ledger'].append({'event_id': event_id, 'type': kind, 'points_delta': points})
+            out['processed_event_ids'].append(event_id)
+
+    elif kind == 'refund_processed' and txn_id in out['transactions']:
         txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
         # Starter defect: refund bounds and duplicate event IDs need validation.
         txn['refunded_paise']+=refund
         should_reverse=txn['awarded_points']*txn['refunded_paise']//max(1,txn['amount_paise'])
         delta=should_reverse-txn['reversed_points']; out['points_balance']-=delta; txn['reversed_points']=should_reverse
         out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':-delta})
-    out['processed_event_ids'].append(event_id)
+        out['processed_event_ids'].append(event_id)
+
     return out
 
 
