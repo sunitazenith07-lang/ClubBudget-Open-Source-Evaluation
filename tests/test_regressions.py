@@ -51,6 +51,15 @@ def test_event_missing_identifier_is_ignored(missing):
     assert out["points_balance"] == 0 and out["ledger"] == [] and out["processed_event_ids"] == []
 
 
+@pytest.mark.parametrize("field", ["event_id", "transaction_id"])
+@pytest.mark.parametrize("bad", [[], {}, ["T"]])
+def test_unhashable_identifier_is_ignored_not_crashing(field, bad):
+    event = purchase()
+    event[field] = bad
+    out = apply_reward_event(new_account("A"), event, RULES)
+    assert out["points_balance"] == 0 and out["ledger"] == [] and out["transactions"] == {}
+
+
 @pytest.mark.parametrize("amount", [None, 0, -100, "25000", 1.5, True])
 def test_invalid_purchase_amount_creates_no_transaction(amount):
     out = apply_reward_event(new_account("A"), purchase(amount=amount), RULES)
@@ -138,6 +147,22 @@ def test_alert_order_is_deterministic_and_marked_for_review():
     result = flag_repeat_transactions(rows, 2)
     assert [r["account_id"] for r in result] == ["A", "B"]
     assert all(r["status"] == "needs_review" and r["count"] == 3 for r in result)
+
+
+def test_alert_transaction_ids_do_not_depend_on_input_order():
+    rows = [{"transaction_id": f"TX{i}", "account_id": "A", "date": "D", "amount_paise": 1000} for i in range(4)]
+    result = flag_repeat_transactions(rows, 2)
+    assert result == flag_repeat_transactions(list(reversed(rows)), 2)
+    assert result[0]["transaction_ids"] == ["TX0", "TX1", "TX2", "TX3"]
+
+
+@pytest.mark.parametrize("field", ["account_id", "date"])
+@pytest.mark.parametrize("bad", [[], {}, ["A"]])
+def test_unhashable_alert_keys_are_skipped_not_crashing(field, bad):
+    rows = [{"transaction_id": str(i), "account_id": "A", "date": "D", "amount_paise": 1000} for i in range(3)]
+    rows[0][field] = bad
+    assert flag_repeat_transactions(rows, 1) == [{"account_id": "A", "date": "D", "amount_paise": 1000,
+                                                  "transaction_ids": ["1", "2"], "count": 2, "status": "needs_review"}]
 
 
 def test_dataset_repeat_groups_are_flagged():

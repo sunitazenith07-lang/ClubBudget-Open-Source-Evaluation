@@ -9,6 +9,15 @@ def _is_int(value) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
+def _is_hashable(value) -> bool:
+    # IDs are used as dict keys; a list or dict from bad JSON would otherwise raise TypeError.
+    try:
+        hash(value)
+    except TypeError:
+        return False
+    return True
+
+
 def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
     """Integer-only points: floor base, then bonus, then optional cap. Invalid input earns 0."""
     if not (_is_int(amount_paise) and _is_int(points_per_100_rupees) and _is_int(bonus_percent)):
@@ -38,7 +47,9 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
         return out
     event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id'); amount=event.get('amount_paise')
     # Without both identifiers the event cannot be de-duplicated or linked to a purchase.
-    if event_id is None or txn_id is None or event_id in out['processed_event_ids']:
+    if event_id is None or txn_id is None or not (_is_hashable(event_id) and _is_hashable(txn_id)):
+        return out
+    if event_id in out['processed_event_ids']:
         return out
     if not _is_int(amount) or amount <= 0:
         return out
@@ -90,6 +101,9 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_RE
         key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise'))
         if key[0] is None or key[1] is None or not _is_int(key[2]) or key[2] <= 0 or tx.get('transaction_id') is None:
             continue
+        if not _is_hashable(key):
+            continue
         groups.setdefault(key,[]).append(tx.get('transaction_id'))
-    return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':ids,'count':len(ids),'status':'needs_review'}
+    # ids are sorted so the same transactions give the same alert whatever order they arrive in
+    return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':sorted(ids,key=str),'count':len(ids),'status':'needs_review'}
             for k,ids in sorted(groups.items(),key=lambda item:(str(item[0][0]),str(item[0][1]),item[0][2])) if len(ids)>threshold]

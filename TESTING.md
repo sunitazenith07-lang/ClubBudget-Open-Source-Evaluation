@@ -7,6 +7,7 @@
   - Baseline (untouched starter): `67 failed, 147 passed in 0.17s`
   - After fix: `249 passed in 0.06s` (214 original + 35 new; 0 failed, 0 errors, 0 skipped)
   - After stretch item: `264 passed in 0.06s` (+15 in `tests/test_threshold_config.py`)
+  - After stress-test fixes: `277 passed in 0.07s` (+13 in `tests/test_regressions.py`: list/dict IDs are ignored instead of crashing, alert IDs are sorted)
   - `python -m main --threshold 1` → one alert for TX-1/TX-2; `python -m main --threshold 0` → `error: --threshold must be 1 or more`
   - Demo after fix: `Points example: 27`, `Repeat warnings: []` (starter printed 28)
 

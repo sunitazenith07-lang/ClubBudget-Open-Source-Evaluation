@@ -1,6 +1,6 @@
 # optimizations.md - Required submission
 
-No performance optimization was implemented or measured. The changes were for correctness and clarity. The test suite runs in about 0.06 s (264 tests), so speed was not the problem.
+No performance optimization was implemented. The changes were for correctness and clarity; the one scaling measurement (a stress run) is under Trade-offs. The test suite runs in about 0.07 s (277 tests), so speed was not the problem.
 
 ## 1. Baseline and objective
 - What needed improvement: correctness first (67 failing tests), then readability. The starter put each function on a few long lines separated by `;`, which made the refund bug hard to see.
@@ -24,7 +24,7 @@ No performance optimization was implemented or measured. The changes were for co
 
 ## 4. Trade-offs
 - **Readability vs brevity:** `service.py` grew from 37 to about 90 lines, but each rule is now one visible line that can be pointed to in a walkthrough.
-- **Correctness vs speed:** `deepcopy` and the list lookup are O(size of account history) per event. That is fine for this offline service and the tests, but would not be for an account with millions of events.
+- **Correctness vs speed:** `deepcopy` and the list lookup are O(size of account history) per event. That is fine for this offline service and the tests, but would not be for an account with millions of events. A stress run confirmed it: replaying 1,000 / 2,000 / 4,000 purchases into one account took about 0.7 s / 2.8 s / 11.2 s, so doubling the events makes it roughly 4× slower (quadratic). The 264-event dataset is unaffected.
 - **Strict vs lenient input:** rejecting strings such as `"100000"` is safer for money, but less forgiving if an upstream system sends strings.
 
 ## 5. Further improvements
