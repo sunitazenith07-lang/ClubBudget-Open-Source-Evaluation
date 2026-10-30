@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+clubbudget_evaluation_starter.egg-info/PKG-INFO
+clubbudget_evaluation_starter.egg-info/SOURCES.txt
+clubbudget_evaluation_starter.egg-info/dependency_links.txt
+clubbudget_evaluation_starter.egg-info/top_level.txt
+tests/test_acceptance_matrix.py
+tests/test_contract.py
