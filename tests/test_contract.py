@@ -35,3 +35,30 @@ def test_repeat_group():
 
 def test_different_accounts_not_grouped():
     rows=[{'transaction_id':'1','account_id':'A','date':'D','amount_paise':1000},{'transaction_id':'2','account_id':'B','date':'D','amount_paise':1000}]; assert flag_repeat_transactions(rows,1)==[]
+
+def test_refund_event_replay_once():
+    rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T1','amount_paise':100000},rules); r={'event_id':'R1','type':'refund_processed','transaction_id':'T1','amount_paise':50000}; b=apply_reward_event(a,r,rules); c=apply_reward_event(b,r,rules); assert c['points_balance']==5 and c['transactions']['T1']['refunded_paise']==50000 and len(c['ledger'])==2
+
+def test_multiple_partial_refunds_exceeding_purchase_ignored():
+    rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T1','amount_paise':100000},rules); b=apply_reward_event(a,{'event_id':'R1','type':'refund_processed','transaction_id':'T1','amount_paise':60000},rules); c=apply_reward_event(b,{'event_id':'R2','type':'refund_processed','transaction_id':'T1','amount_paise':50000},rules); assert c['points_balance']==4 and c['transactions']['T1']['refunded_paise']==60000 and len(c['ledger'])==2
+
+def test_boolean_and_missing_inputs_handled_safely():
+    assert calculate_points(True,1)==0; a=new_account('A'); out=apply_reward_event(a,{},{'points_per_100_rupees':1}); assert out['points_balance']==0 and flag_repeat_transactions([],2)==[]
+
+def test_missing_identifiers_and_empty_inputs_handled_safely():
+    rules={'points_per_100_rupees':1}; assert apply_reward_event(new_account('A'),{},rules)['points_balance']==0 and apply_reward_event(new_account('A'),{},rules)['processed_event_ids']==[] and apply_reward_event(new_account('A'),None,rules)['points_balance']==0 and apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},None)['points_balance']==0 and flag_repeat_transactions([],2)==[] and flag_repeat_transactions(None)==[]
+
+def test_none_inputs_do_not_crash_or_award():
+    assert apply_reward_event(new_account('A'),None,{'points_per_100_rupees':1})['points_balance']==0; out=apply_reward_event(None,{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':10000},{'points_per_100_rupees':1}); assert out['points_balance']==0 and out['transactions']=={}
+
+def test_float_and_string_points_inputs_give_zero():
+    assert calculate_points(10000.5,1)==0 and calculate_points('10000',1)==0 and calculate_points(10000,1,10.5)==0
+
+def test_repeat_transactions_none_input_and_bad_threshold_are_safe():
+    rows=[{'transaction_id':str(i),'account_id':'A','date':'D','amount_paise':1000} for i in range(3)]; assert flag_repeat_transactions(None)==[] and isinstance(flag_repeat_transactions(rows,threshold='x'),list) and flag_repeat_transactions(rows,threshold='x')==[]
+
+def test_cumulative_refund_and_ledger_audit_trail():
+    rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules); b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T','amount_paise':30000},rules); c=apply_reward_event(b,{'event_id':'E3','type':'refund_processed','transaction_id':'T','amount_paise':70000},rules); assert b['points_balance']==7 and c['points_balance']==0 and c['transactions']['T']['reversed_points']==10 and [x['points_delta'] for x in c['ledger']]==[10,-3,-7]
+
+def test_repeat_transactions_ignore_malformed_records():
+    rows=[{'transaction_id':'1','account_id':'A','date':'D','amount_paise':1000},{'transaction_id':'2','account_id':None,'date':'D','amount_paise':1000},{'transaction_id':None,'account_id':'A','date':'D','amount_paise':1000}]; assert flag_repeat_transactions(rows,1)==[]

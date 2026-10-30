@@ -1,32 +1,30 @@
 # approach.md - Required submission
 
-Complete this file in your own words. Be concise and specific to the work you actually performed.
+I am a first-year student who just finished learning the basics of Python. This is how I approached and fixed this project, in my own words.
 
 ## 1. Baseline
-- Commands run before editing:
-- Initial test result (include the actual summary):
-- Demo/output observed:
+- Commands run before editing: `python -m pip install -r requirements-dev.txt`, `python -m pytest -q`, `python -m main`
+- Initial test result (include the actual summary): **67 failed, 147 passed, out of 214 total tests** (12 in `tests/test_contract.py` + 202 in `tests/test_acceptance_matrix.py`)
+- Demo/output observed: `Points example: 28`, `Repeat warnings: []`. The demo uses 259900 paise with 1 point per ₹100, 10% bonus, cap 100. Floor maths gives 27, not 28, so the starter was already visibly wrong: `259900 // 10000 = 25`, `25 * 110 // 100 = 27`.
 
 ## 2. Codebase understanding
-- Important files/functions inspected:
-- Rewards calculation, refund, ledger or alert flow traced:
-- How you confirmed your understanding:
+- Important files/functions inspected: `service.py` (`calculate_points`, `apply_reward_event`, `flag_repeat_transactions`), `models.py` (`new_account`), `fixtures.py` and `main.py` (demo), `tests/test_contract.py`, `tests/test_acceptance_matrix.py`, `data/records.json` (synthetic data only: 40 accounts, 180 repeat records, 264 event examples, 180 captured purchases, 8 rule cases), `.github/workflows/tests.yml` (unchanged).
+- Rewards calculation, refund, ledger or alert flow traced: `calculate_points` turns paise into complete ₹100 blocks, then bonus, then cap last. `apply_reward_event` copies the account first, then for `purchase_captured` adds points and a ledger entry, and for `refund_processed` grows `refunded_paise`, recomputes total reversal, and subtracts only the new delta. `flag_repeat_transactions` groups by `(account_id, date, amount_paise)` and flags groups with count greater than the threshold. It is an alert only.
+- How you confirmed your understanding: I compared each requirement in `STUDENT_PROBLEM_STATEMENT.md` with the failing test assertions, and I ran small examples by hand, for example purchase 100000 → 10 points, refund 30000 → balance 7, refund 70000 → balance 0.
 
 ## 3. Investigation and implementation strategy
 For each major defect, describe the symptom, hypothesis, evidence from a test/log/example, and the fix chosen.
-- Issue 1:
-- Issue 2:
-- Issue 3 (if applicable):
+- Issue 1: Floor and cap. Symptom: `calculate_points(19999, 1)` returned 2, not 1, and `calculate_points(50000, 1, cap_points=0)` returned 5, not 0. Hypothesis: `round(amount_paise / 10000)` is not floor, and `if cap_points:` treats 0 as falsy. Evidence: demo gave 28, not 27. Fix: `(amount_paise // 10000) * points_per_100_rupees`, bonus before cap, and `if cap_points is not None:`.
+- Issue 2: Duplicate events and unsafe refunds. Symptom: replaying a purchase gave `processed_event_ids == ['E1', 'E1']`, and refunds of -1 and 150000 on a 100000 purchase changed the account. Hypothesis: the starter checked the transaction id but never the event id, and it added the refund before checking it. Evidence: `test_purchase_event_once` and `test_invalid_or_excess_refund_does_not_change_account` failed. Fix: early return if `event_id is None` or already processed, keep the transaction-id check too, and accept a refund only if it is a valid int, not negative, and cumulative refunds never exceed the purchase. Reversal is proportional to awarded points, capped at awarded points.
+- Issue 3: Bool, missing inputs, and repeat rows. Symptom: `True` as a refund amount was treated like 1, and `None` event, `None` rules, `None` list, or a string threshold raised `AttributeError` or `TypeError`. Hypothesis: `isinstance(True, int)` is `True` in Python, and there was no check for missing inputs at all. Evidence: I tested `isinstance(True, int)` in the terminal (it returned `True`) and probed the functions with `None` inputs and saw the crashes. Fix: one helper `is_valid_int(value)` = `isinstance(value, int) and not isinstance(value, bool)`, used with `>= 0` everywhere; non-dict event/rules return the account unchanged, a non-dict account returns a blank safe account, a `None` list returns `[]`, and an unusable threshold returns `[]`. Repeat rows that are not a dict, or where any key field is `None`, are skipped and never grouped under `None`.
 
 ## 4. Implementation decisions
-- Main changes and why:
-- Alternatives considered and why rejected:
-- Assumptions:
+- Main changes and why: integer `//` maths, bonus before cap, cap last; one `is_valid_int` helper instead of repeating the bool check; event-id check plus transaction-id check, kept separate; cumulative refund reversal; malformed repeat rows skipped; `deepcopy` kept so the caller's account is never mutated.
+- Alternatives considered and why rejected: `math.floor` with float division (float can lose precision on very large integers, `//` is exact); raising exceptions on invalid input (the problem statement says handle empty/missing/unknown input safely, and tests expect 0 or a no-op); hard-coding demo outputs (would pass the demo and fail hidden tests); a `set` for `processed_event_ids` (tests expect a list in order, `['E1']`, and counts are small).
+- Assumptions: amounts, rates, bonuses and caps are integers in paise; floats, strings, bools and `None` are invalid, not data to coerce. `date` is compared as a plain string, no date parsing. A well-formed but business-invalid event (declined, unknown, invalid amount, excess refund) still consumes its event id, so a corrected payload needs a new event id; a malformed event (not a dict, missing id, unusable rules) does not consume one.
 
 ## 5. Verification
-- Tests added or changed:
-- Commands run and actual results:
-- Edge cases verified:
-- Remaining failures or known limitations:
-
-Record actual engineering decisions and evidence. Do not claim tests or experiments you did not run.
+- Tests added or changed: no existing test was deleted, edited, skipped or weakened. `tests/test_acceptance_matrix.py` is unchanged. 9 new tests were added to `tests/test_contract.py`: refund replay once, multiple partial refunds exceeding the purchase ignored, bool and missing inputs handled safely, missing identifiers and empty inputs handled safely, None inputs do not crash or award, float/string points inputs give zero, repeat None input and bad threshold are safe, cumulative refund and ledger audit trail, and malformed repeat rows ignored.
+- Commands run and actual results: `python -m pytest -q` on the starter gave 67 failed, 147 passed. On this version it gives **223 passed, 0 failed** (202 acceptance + 21 contract: 12 original + 9 new). `python -m main` gives `Points example: 27`, `Repeat warnings: []`.
+- Edge cases verified: floor boundaries 9999 / 10000 / 19999, cap 0, negative and bool inputs, float/string inputs, duplicate purchases and refunds, cumulative refunds to exactly zero, excess and invalid refunds, unknown/declined events, missing event ids, malformed repeat rows, empty inputs, and `None` inputs.
+- Remaining failures or known limitations: no remaining failures in the visible test suite. Hidden tests are unseen and are not claimed as passed. Repeat grouping counts the same transaction id twice if the input list itself repeats it. There is no persistence, no spend/redeem operation, and no stretch feature (CSV statement, configurable threshold, or category summary) was attempted.
