@@ -6,7 +6,7 @@ Nothing completely blocked me, but these were the parts that took the most figur
 1. **The tests wouldn't run at first.** `python3 -m pytest` failed before I even touched the code.
 2. **Partial refunds and rounding.** I wasn't sure whether each refund should take back its own share of points, or whether I should work it out from the total refunded so far. It turns out this matters.
 3. **`True` counts as a number in Python.** The tests use `True` and `False` as refund amounts and expect them to be rejected, but `True` passes an `int` check.
-4. **The dataset didn't match the rules neatly.** The rules say "process each event_id once", but most events in the dataset don't have an `event_id`. Some repeat groups also have amount 0.
+4. **The dataset didn't match the rules neatly.** The rules say "process each event_id once", but 9 events in the dataset have no `event_id` at all, and 12 reuse an ID that already appeared. Some repeat groups also have amount 0.
 5. **Stress testing found crashes.** After everything passed, I tried thousands of random inputs and some of them crashed the code.
 
 ## 2. Evidence
@@ -15,7 +15,7 @@ Nothing completely blocked me, but these were the parts that took the most figur
    - Doing each refund on its own: `156×100000//259900 = 60` and `156×159900//259900 = 95`, so 155 taken back. **1 point is left over after a full refund**, which is wrong.
    - Using the running total: first `156×100000//259900 = 60`, then `156×259900//259900 = 156`, so take back 156 − 60 = 96 more. **0 left**, which is correct.
 3. `isinstance(True, int)` returns `True`, so a check like `amount <= 0` lets `True` through as if it were 1 paise.
-4. My counting script showed 157 of 264 events have no `event_id`, and 12 of the 60 repeat groups have amount 0.
+4. My counting script showed that of 264 events, 9 have no `event_id`, 12 are duplicate IDs, and 152 have no `amount_paise` (only declined, pending or unknown types, which never earn anyway). 12 of the 60 repeat groups have amount 0.
 5. A `transaction_id` of `[]` raised `TypeError: unhashable type: 'list'`, because Python can't use a list as a dictionary key. The same thing happened in the alert function with a list `account_id` or `date`. The random test also showed that the order of IDs in an alert changed if the input order changed.
 
 ## 3. What I tried

@@ -13,7 +13,7 @@
   - For a `refund_processed` event, it finds the original purchase, works out how many points to take back, subtracts them and writes a ledger line.
   - Repeat alerts group transactions by account + date + amount and flag any group bigger than the threshold.
 - How you confirmed your understanding: I matched each failing test to the line in `service.py` that caused it. I also wrote a small script to count what's in `data/records.json`:
-  - 264 reward events, and 157 of them have no `event_id`
+  - 264 reward events: 9 have no `event_id`, 12 reuse an `event_id` that already appeared (duplicates), and 152 have no `amount_paise` (all of those are declined, pending or unknown events)
   - amounts that are `None`, `"100"`, `1.5`, `True`, `[]` and `{}`
   - 180 repeat records, in 60 groups of 3 (12 groups have amount 0)
 
