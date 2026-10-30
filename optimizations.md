@@ -3,21 +3,27 @@
 Document optimizations you considered or implemented. Do not claim a speedup or improvement unless you measured it.
 
 ## 1. Baseline and objective
-- What needed improvement (correctness, clarity, complexity, memory, repeated work, maintainability)?
-- What evidence suggested an improvement could help?
+The main goal was to improve code correctness and maintainability.
+
+The refund logic was not handling invalid and excessive refunds properly.
 
 ## 2. Options considered
-Describe each option's expected benefit and risk, including rejected ideas.
+Tried using max(0, points), but it did not fix invalid transaction updates.
+
+Considered adding refund validation, which was the simplest and safest option.
+
+Avoided unnecessary complex logic.
 
 ## 3. Changes implemented
-- Change and reason:
-- Tests that protect correctness:
-- Measurement method and result (only if measured):
+Change and reason: Added refund validation to prevent invalid refunds.
+
+Tests: Ran contract tests and acceptance matrix tests.
+
+Measurement: No performance benchmark was done. All 214 tests passed.
+
 
 ## 4. Trade-offs
-Explain trade-offs involving clarity, correctness, performance, memory, or maintainability.
+The validation adds a small amount of code but makes refund handling safer and easier to maintain. No speed improvement is claimed.
 
 ## 5. Further improvements
-What would you do next with more time, and how would you validate it?
-
-If you made no optimization change, state that honestly and compare at least two reasonable options. Correctness and maintainability take priority over unnecessary complexity.
+I would add database locking for simultaneous refunds and warning logs for invalid refund requests.

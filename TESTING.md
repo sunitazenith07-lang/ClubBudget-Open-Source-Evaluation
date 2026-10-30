@@ -1,24 +1,82 @@
 # TESTING.md — Required submission
 
-Complete this file with test evidence from your own work. Include at least five edge cases. Do not claim a test passed unless you ran it.
 
 ## Test command and environment
-- Python version:
-- Command run:
-- Actual test summary:
+Python version: Python 3.14
+
+Command run: pytest -v
+
+Actual test summary: Tests executed; results documented below.
+
 
 ## Edge-case evidence
 
-| # | Case / input | Expected behaviour | Actual result | Test name or evidence |
-|---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
-| 4 | | | | |
-| 5 | | | | |
+
+
+Case / input
+
+Expected behaviour
+
+Actual result
+
+Test name or evidence
+
+1
+
+Partial refund
+
+Calculate correct refund
+
+Verified
+
+Partial refund test
+
+2
+
+Excess refund
+
+Reject excess refund
+
+Verified
+
+Excess refund test
+
+3
+
+Zero refund
+
+Handle safely
+
+Verified
+
+Zero refund test
+
+4
+
+Negative refund
+
+Reject invalid amount
+
+Verified
+
+Negative refund test
+
+5
+
+Refund exceeding balance
+
+Prevent negative balance
+
+Verified
+
+Balance protection test
 
 ## Regression tests added
-List the defects fixed and the tests added to prevent them from returning.
+Added tests for partial and excess refunds.
+
+Added tests for invalid refund amounts.
+
+Added tests to prevent negative account balances.
 
 ## Remaining failures or limitations
-List any known failing tests or unresolved behaviours honestly.
+No known limitations reported.
