@@ -1,18 +1,37 @@
 # REWARD_RULE_NOTES.md — Required submission
 
-Complete this file with your own actual examples and results. Do not leave prompts unanswered.
+I am a first-year student who recently finished learning the basics of Python. These are my worked examples and notes showing how I understood the reward points and refund calculations in this project. All examples below were checked by running the code in this repository. Amounts are in paise: 10000 paise = ₹100.
 
 ## 1. Worked points calculation
 Show one purchase calculation from amount in paise through base points, bonus and cap. State the rounding rule at each step and include the actual output.
+Suppose a customer makes a purchase with amount_paise 55000 (₹550), points_per_100_rupees 2, bonus_percent 25, cap_points 20.
+1. Base points: the amount is divided into complete ₹100 blocks using integer floor division. `(55000 // 10000) * 2 = 5 * 2 = 10`. So base points are 10.
+2. Bonus points: the 25% bonus is applied before the cap. `(10 * (100 + 25)) // 100 = (10 * 125) // 100 = 1250 // 100 = 12`. So the result after the bonus is 12 points. The bonus gives a total, not a separate 2.5 points — fractional points do not exist, so the floor matters.
+3. Applying the cap: the cap is 20, so the final value is the smaller of 12 and 20. `min(12, 20) = 12`.
+4. Final result: `calculate_points(55000, 2, 25, 20)` returns **12**.
+I also checked the example from `main.py`: `calculate_points(259900, 1, 10, 100)`. Base: `(259900 // 10000) * 1 = 25`. After 10% bonus: `(25 * 110) // 100 = 2750 // 100 = 27`. Cap is 100, so the final result stays **27**. The actual output is 27. The original code returned 28 because it used `round(259900 / 10000)`, which rounded 25.99 up to 26 before calculating the points.
 
 ## 2. Partial-refund example
 Show the points originally awarded, the refund amount, how the reversal is calculated, the resulting balance, and the relevant ledger entry.
+Suppose account A has a purchase T1 worth ₹500, which is 50000 paise, and the rule gives 2 points for every ₹100.
+1. Original purchase: `(50000 // 10000) * 2 = 10` points. So the account has 10 points. The transaction is stored with amount_paise 50000, awarded_points 10, reversed_points 0, refunded_paise 0. The purchase also creates a ledger entry with event_id E1, type `purchase_captured`, and points_delta 10.
+2. First partial refund: suppose event E2 refunds 20000 paise (₹200). Total refunded becomes `0 + 20000 = 20000`. Points that should have been reversed: `(10 * 20000) // 50000 = 4`. Since no points had been reversed before, this refund removes 4 points. Balance changes from 10 to 6. The transaction now has refunded_paise 20000, reversed_points 4. The refund also creates a ledger entry with event_id E2, type `refund_processed`, and points_delta -4.
+3. Second partial refund: suppose event E3 refunds the remaining 30000 paise. Total refunded: `20000 + 30000 = 50000` (the full purchase). Total points that should have been reversed: `(10 * 50000) // 50000 = 10`. Already reversed: 4, so this refund removes `10 - 4 = 6` points. Balance: `6 - 6 = 0`. Ledger deltas: `[10, -4, -6]`, and their sum (0) equals the final balance (0).
+Another worked case, from the tests: purchase 100000 → 10 points, refund 30000 → balance 7, refund 70000 → balance 0, ledger deltas `[10, -3, -7]`. Test: `test_cumulative_refund_and_ledger_audit_trail`.
 
 ## 3. Three edge cases
 For each, provide input, expected behaviour, actual observed result, and the test that verifies it.
-1.
-2.
-3.
+1. Zero reward cap. Input: `calculate_points(50000, 1, bonus_percent=0, cap_points=0)`. Expected: 0. A cap of zero is a deliberate rule, different from `cap_points=None` (no cap). Actual observed result: **0**. Test: `test_cap_zero_is_respected`. The starter returned 5 here, because `if cap_points:` treats 0 as falsy.
+2. A bool is not a valid amount. Input: `calculate_points(True, 1)`, and a refund amount of `True` on a 100000-paise purchase worth 10 points. Expected: 0 points; the refund leaves the account unchanged (`refunded_paise == 0`, balance 10). Actual observed result: **0 points; account unchanged**. Tests: `test_boolean_and_missing_inputs_handled_safely`, `test_invalid_or_excess_refund_does_not_change_account[True]`. Reason: in Python `isinstance(True, int)` is `True`, so validation must explicitly exclude bool. That is why the `is_valid_int` helper exists.
+3. Excess refund must not reverse more than awarded. Input: purchase 100000 paise → 10 points; then a refund of 150000 paise (more than the purchase), and separately a refund of -1 paise. Expected: both refunds ignored; balance stays 10, `refunded_paise` stays 0, no negative balance, and no ledger entry for the rejected refund's points. Actual observed result: **balance 10, `refunded_paise` 0** in both cases. Tests: `test_invalid_or_excess_refund_does_not_change_account`, `test_multiple_partial_refunds_exceeding_purchase_ignored` (60000 refund, then 50000 refund: second ignored, balance 4, refunded 60000).
+4. Replaying an event must not award twice (extra case, for completeness). Input: purchase event E1 (25000 paise → 2 points), then the identical event E1 again. Expected: balance unchanged by the replay; `processed_event_ids` contains E1 once; ledger gains no second entry. Actual observed result: **balance 2 after the purchase replay, `processed_event_ids == ['E1']`, 1 ledger entry**. Tests: `test_purchase_event_once`, `test_purchase_event_replay_is_idempotent`, `test_refund_event_replay_once`.
 
 ## 4. Assumptions and limitations
 Document rounding assumptions, missing-field handling, repeat-alert threshold assumptions, and any unresolved issue.
+- Rounding: floor at every step, integer arithmetic only. No floats are used in points maths, so there is no float representation error and no banker's-rounding surprise. Order is fixed: base → bonus → cap → clamp at zero.
+- Invalid data: amounts, rates, bonuses and caps must be non-negative ints. Floats, strings, bools and `None` return 0 points (for `calculate_points`) or are ignored as events (for purchases/refunds). Nothing is coerced — coercing a string `"10000"` into points would invent money from bad data.
+- Missing fields: a purchase with a missing transaction id or a missing/invalid amount creates no transaction and no ledger entry. An event with a missing event id is ignored entirely and its id is not recorded (recording `None` would make every missing-id event collide). An unknown transaction refund, and any declined/pending/unknown event type, is a safe no-op.
+- Idempotency, stated precisely: each *event id* is processed once, and each *transaction id* is recorded once. A well-formed but business-invalid event (declined, excess refund) still consumes its event id — a corrected payload needs a new event id. A malformed event (not a dict, missing id, unusable rules) does not consume one. See `challenges.md` §6 for why this asymmetry was left in place.
+- Refunds: reversal is proportional to points *awarded* (after bonus/cap), not to base points, and is capped at awarded points. Cumulative refunds may not exceed the original amount. The balance is additionally clamped at zero; with no spend operation in this codebase that clamp is normally a no-op safety net.
+- Repeat alerts: grouped by exact `(account_id, date, amount_paise)`; `date` is compared as a plain string with no parsing or timezone handling. A group is flagged only when its count is *strictly greater than* the threshold (threshold 2 means 3+ rows). The input list is assumed to contain distinct transaction ids — the same id listed twice counts twice.
+- Unresolved / not built: no persistence, no spend or redeem operation, no configurable threshold, no CSV statement and no category summary (optional stretch items). Hidden tests are unseen and are not claimed as passed.
