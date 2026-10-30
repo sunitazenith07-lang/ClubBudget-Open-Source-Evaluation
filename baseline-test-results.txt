@@ -1,0 +1,1236 @@
+..F.F.F.F.F..F.F.F.F..F.F.......F...F.F.......................FFFFFFFFFF [ 33%]
+FFFFFFFFFF.F.F.F..F........F.F..........FFFFFFFFFF.FFFFFFFFFFFFF........ [ 67%]
+..........................................................F..FF...F...   [100%]
+=================================== FAILURES ===================================
+_______________ test_integer_floor_points_calculation[9999-0_0] ________________
+
+amount = 9999, expected = 0
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 1 == 0
+E        +  where 1 = calculate_points(9999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+________________ test_integer_floor_points_calculation[19999-1] ________________
+
+amount = 19999, expected = 1
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 2 == 1
+E        +  where 2 = calculate_points(19999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+________________ test_integer_floor_points_calculation[29999-2] ________________
+
+amount = 29999, expected = 2
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 3 == 2
+E        +  where 3 = calculate_points(29999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+________________ test_integer_floor_points_calculation[49999-4] ________________
+
+amount = 49999, expected = 4
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 5 == 4
+E        +  where 5 = calculate_points(49999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+________________ test_integer_floor_points_calculation[99999-9] ________________
+
+amount = 99999, expected = 9
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 10 == 9
+E        +  where 10 = calculate_points(99999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+_______________ test_integer_floor_points_calculation[109999-10] _______________
+
+amount = 109999, expected = 10
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 11 == 10
+E        +  where 11 = calculate_points(109999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+_______________ test_integer_floor_points_calculation[199999-19] _______________
+
+amount = 199999, expected = 19
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 20 == 19
+E        +  where 20 = calculate_points(199999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+_______________ test_integer_floor_points_calculation[249999-24] _______________
+
+amount = 249999, expected = 24
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 25 == 24
+E        +  where 25 = calculate_points(249999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+_______________ test_integer_floor_points_calculation[999999-99] _______________
+
+amount = 999999, expected = 99
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 100 == 99
+E        +  where 100 = calculate_points(999999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+________________ test_integer_floor_points_calculation[19998-1] ________________
+
+amount = 19998, expected = 1
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 2 == 1
+E        +  where 2 = calculate_points(19998, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+_______________ test_integer_floor_points_calculation[9999-0_1] ________________
+
+amount = 9999, expected = 0
+
+    @pytest.mark.parametrize("amount,expected", [
+        (0,0),(1,0),(9999,0),(10000,1),(19999,1),(20000,2),
+        (29999,2),(30000,3),(49999,4),(50000,5),(99999,9),(100000,10),
+        (100001,10),(109999,10),(110000,11),(199999,19),(200000,20),
+        (249999,24),(250000,25),(999999,99),(1000000,100),
+        (12345,1),(19998,1),(20001,2),(9999,0),
+    ])
+    def test_integer_floor_points_calculation(amount, expected):
+>       assert calculate_points(amount, 1) == expected
+E       assert 1 == 0
+E        +  where 1 = calculate_points(9999, 1)
+
+tests/test_acceptance_matrix.py:15: AssertionError
+__________________ test_bonus_and_cap_matrix[50000-2-50-0-0] ___________________
+
+amount = 50000, per = 2, bonus = 50, cap = 0, expected = 0
+
+    @pytest.mark.parametrize("amount,per,bonus,cap,expected", [
+        (10000,1,0,None,1),(10000,2,0,None,2),(50000,2,0,None,10),
+        (50000,2,10,None,11),(50000,2,50,None,15),(50000,2,100,None,20),
+        (50000,2,50,6,6),(50000,2,50,0,0),(50000,2,50,20,15),
+        (25000,3,33,None,7),(25000,3,34,None,8),(99000,1,10,None,9),
+        (99000,1,0,4,4),(9999,99,99,None,0),(10000,0,100,None,0),
+        (50000,1,0,1,1),(50000,1,0,2,2),(30000,1,25,None,3),
+        (30000,1,50,None,4),(30000,1,99,None,5),
+    ])
+    def test_bonus_and_cap_matrix(amount, per, bonus, cap, expected):
+>       assert calculate_points(amount, per, bonus, cap) == expected
+E       assert 15 == 0
+E        +  where 15 = calculate_points(50000, 2, 50, 0)
+
+tests/test_acceptance_matrix.py:28: AssertionError
+_________________ test_bonus_and_cap_matrix[99000-1-10-None-9] _________________
+
+amount = 99000, per = 1, bonus = 10, cap = None, expected = 9
+
+    @pytest.mark.parametrize("amount,per,bonus,cap,expected", [
+        (10000,1,0,None,1),(10000,2,0,None,2),(50000,2,0,None,10),
+        (50000,2,10,None,11),(50000,2,50,None,15),(50000,2,100,None,20),
+        (50000,2,50,6,6),(50000,2,50,0,0),(50000,2,50,20,15),
+        (25000,3,33,None,7),(25000,3,34,None,8),(99000,1,10,None,9),
+        (99000,1,0,4,4),(9999,99,99,None,0),(10000,0,100,None,0),
+        (50000,1,0,1,1),(50000,1,0,2,2),(30000,1,25,None,3),
+        (30000,1,50,None,4),(30000,1,99,None,5),
+    ])
+    def test_bonus_and_cap_matrix(amount, per, bonus, cap, expected):
+>       assert calculate_points(amount, per, bonus, cap) == expected
+E       assert 11 == 9
+E        +  where 11 = calculate_points(99000, 1, 10, None)
+
+tests/test_acceptance_matrix.py:28: AssertionError
+_________________ test_bonus_and_cap_matrix[9999-99-99-None-0] _________________
+
+amount = 9999, per = 99, bonus = 99, cap = None, expected = 0
+
+    @pytest.mark.parametrize("amount,per,bonus,cap,expected", [
+        (10000,1,0,None,1),(10000,2,0,None,2),(50000,2,0,None,10),
+        (50000,2,10,None,11),(50000,2,50,None,15),(50000,2,100,None,20),
+        (50000,2,50,6,6),(50000,2,50,0,0),(50000,2,50,20,15),
+        (25000,3,33,None,7),(25000,3,34,None,8),(99000,1,10,None,9),
+        (99000,1,0,4,4),(9999,99,99,None,0),(10000,0,100,None,0),
+        (50000,1,0,1,1),(50000,1,0,2,2),(30000,1,25,None,3),
+        (30000,1,50,None,4),(30000,1,99,None,5),
+    ])
+    def test_bonus_and_cap_matrix(amount, per, bonus, cap, expected):
+>       assert calculate_points(amount, per, bonus, cap) == expected
+E       assert 197 == 0
+E        +  where 197 = calculate_points(9999, 99, 99, None)
+
+tests/test_acceptance_matrix.py:28: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-000] ____________
+
+event_id = 'PURCHASE-000'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-000'] == ['PURCHASE-000']
+E
+E         Left contains one more item: 'PURCHASE-000'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-001] ____________
+
+event_id = 'PURCHASE-001'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-001'] == ['PURCHASE-001']
+E
+E         Left contains one more item: 'PURCHASE-001'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-002] ____________
+
+event_id = 'PURCHASE-002'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-002'] == ['PURCHASE-002']
+E
+E         Left contains one more item: 'PURCHASE-002'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-003] ____________
+
+event_id = 'PURCHASE-003'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-003'] == ['PURCHASE-003']
+E
+E         Left contains one more item: 'PURCHASE-003'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-004] ____________
+
+event_id = 'PURCHASE-004'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-004'] == ['PURCHASE-004']
+E
+E         Left contains one more item: 'PURCHASE-004'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-005] ____________
+
+event_id = 'PURCHASE-005'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-005'] == ['PURCHASE-005']
+E
+E         Left contains one more item: 'PURCHASE-005'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-006] ____________
+
+event_id = 'PURCHASE-006'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-006'] == ['PURCHASE-006']
+E
+E         Left contains one more item: 'PURCHASE-006'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-007] ____________
+
+event_id = 'PURCHASE-007'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-007'] == ['PURCHASE-007']
+E
+E         Left contains one more item: 'PURCHASE-007'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-008] ____________
+
+event_id = 'PURCHASE-008'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-008'] == ['PURCHASE-008']
+E
+E         Left contains one more item: 'PURCHASE-008'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-009] ____________
+
+event_id = 'PURCHASE-009'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-00...PURCHASE-009'] == ['PURCHASE-009']
+E
+E         Left contains one more item: 'PURCHASE-009'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-010] ____________
+
+event_id = 'PURCHASE-010'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-010'] == ['PURCHASE-010']
+E
+E         Left contains one more item: 'PURCHASE-010'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-011] ____________
+
+event_id = 'PURCHASE-011'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-011'] == ['PURCHASE-011']
+E
+E         Left contains one more item: 'PURCHASE-011'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-012] ____________
+
+event_id = 'PURCHASE-012'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-012'] == ['PURCHASE-012']
+E
+E         Left contains one more item: 'PURCHASE-012'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-013] ____________
+
+event_id = 'PURCHASE-013'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-013'] == ['PURCHASE-013']
+E
+E         Left contains one more item: 'PURCHASE-013'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-014] ____________
+
+event_id = 'PURCHASE-014'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-014'] == ['PURCHASE-014']
+E
+E         Left contains one more item: 'PURCHASE-014'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-015] ____________
+
+event_id = 'PURCHASE-015'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-015'] == ['PURCHASE-015']
+E
+E         Left contains one more item: 'PURCHASE-015'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-016] ____________
+
+event_id = 'PURCHASE-016'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-016'] == ['PURCHASE-016']
+E
+E         Left contains one more item: 'PURCHASE-016'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-017] ____________
+
+event_id = 'PURCHASE-017'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-017'] == ['PURCHASE-017']
+E
+E         Left contains one more item: 'PURCHASE-017'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-018] ____________
+
+event_id = 'PURCHASE-018'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-018'] == ['PURCHASE-018']
+E
+E         Left contains one more item: 'PURCHASE-018'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+____________ test_purchase_event_replay_is_idempotent[PURCHASE-019] ____________
+
+event_id = 'PURCHASE-019'
+
+    @pytest.mark.parametrize("event_id", [f"PURCHASE-{i:03}" for i in range(20)])
+    def test_purchase_event_replay_is_idempotent(event_id):
+        account = new_account("A")
+        event = {"event_id":event_id,"type":"purchase_captured","transaction_id":"T","amount_paise":25000}
+        rules = {"points_per_100_rupees":1}
+        once = apply_reward_event(account, event, rules)
+        twice = apply_reward_event(once, event, rules)
+        assert twice["points_balance"] == 2
+>       assert twice["processed_event_ids"] == [event_id]
+E       AssertionError: assert ['PURCHASE-01...PURCHASE-019'] == ['PURCHASE-019']
+E
+E         Left contains one more item: 'PURCHASE-019'
+E         Use -v to get more diff
+
+tests/test_acceptance_matrix.py:53: AssertionError
+__________ test_capture_purchase_records_consistent_transaction[9999] __________
+
+amount = 9999
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 1 == (9999 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+_________ test_capture_purchase_records_consistent_transaction[19999] __________
+
+amount = 19999
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 2 == (19999 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+_________ test_capture_purchase_records_consistent_transaction[99999] __________
+
+amount = 99999
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 10 == (99999 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+_________ test_capture_purchase_records_consistent_transaction[199999] _________
+
+amount = 199999
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 20 == (199999 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+_________ test_capture_purchase_records_consistent_transaction[987654] _________
+
+amount = 987654
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 99 == (987654 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+_________ test_capture_purchase_records_consistent_transaction[777777] _________
+
+amount = 777777
+
+    @pytest.mark.parametrize("amount", [1,9999,10000,19999,50000,99999,100000,125000,199999,200000,250000,500000,1000000,10000000,100,1000,1000001,987654,333333,777777])
+    def test_capture_purchase_records_consistent_transaction(amount):
+        account = new_account("A")
+        result = apply_reward_event(account, {"event_id":"E1","type":"purchase_captured","transaction_id":"T","amount_paise":amount}, {"points_per_100_rupees":1})
+        assert result["transactions"]["T"]["amount_paise"] == amount
+>       assert result["transactions"]["T"]["awarded_points"] == amount // 10000
+E       assert 78 == (777777 // 10000)
+
+tests/test_acceptance_matrix.py:62: AssertionError
+________________ test_refund_amount_bounds_and_balance[125000] _________________
+
+amount = 125000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 125000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[150000] _________________
+
+amount = 150000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 150000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[175000] _________________
+
+amount = 175000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 175000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[200000] _________________
+
+amount = 200000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 200000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[250000] _________________
+
+amount = 250000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 250000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[300000] _________________
+
+amount = 300000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 300000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[500000] _________________
+
+amount = 500000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 500000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[750000] _________________
+
+amount = 750000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 750000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+________________ test_refund_amount_bounds_and_balance[1000000] ________________
+
+amount = 1000000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 1000000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+_______________ test_refund_amount_bounds_and_balance[10000000] ________________
+
+amount = 10000000
+
+    @pytest.mark.parametrize("amount", [1,100,9999,10000,25000,49999,50000,75000,99999,100000,125000,150000,175000,200000,250000,300000,500000,750000,1000000,10000000])
+    def test_refund_amount_bounds_and_balance(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+        if amount <= 100000:
+            assert result["transactions"]["T"]["refunded_paise"] == amount
+            assert result["points_balance"] >= 0
+        else:
+>           assert result["transactions"]["T"]["refunded_paise"] == 0
+E           assert 10000000 == 0
+
+tests/test_acceptance_matrix.py:75: AssertionError
+__________ test_invalid_or_excess_refund_does_not_change_account[-1] ___________
+
+amount = -1
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert -1 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+__________ test_invalid_or_excess_refund_does_not_change_account[-50] __________
+
+amount = -50
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert -50 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+_________ test_invalid_or_excess_refund_does_not_change_account[-1000] _________
+
+amount = -1000
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert -1000 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+________ test_invalid_or_excess_refund_does_not_change_account[100001] _________
+
+amount = 100001
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 100001 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+________ test_invalid_or_excess_refund_does_not_change_account[150000] _________
+
+amount = 150000
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 150000 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+________ test_invalid_or_excess_refund_does_not_change_account[200000] _________
+
+amount = 200000
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 200000 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+________ test_invalid_or_excess_refund_does_not_change_account[999999] _________
+
+amount = 999999
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 999999 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+_________ test_invalid_or_excess_refund_does_not_change_account[True] __________
+
+amount = True
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 1 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+_________ test_invalid_or_excess_refund_does_not_change_account[None] __________
+
+amount = None
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+>       result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_acceptance_matrix.py:83:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+account = {'account_id': 'A', 'points_balance': 10, 'processed_event_ids': ['P'], 'transactions': {'T': {'amount_paise': 100000, 'awarded_points': 10, 'reversed_points': 0, 'refunded_paise': 0}}, ...}
+event = {'event_id': 'R', 'type': 'refund_processed', 'transaction_id': 'T', 'amount_paise': None}
+rules = {'points_per_100_rupees': 1}
+
+    def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
+        out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+        event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
+        if kind=='purchase_captured':
+            amount=event.get('amount_paise',0)
+            points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
+            if txn_id not in out['transactions']:
+                out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
+                out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
+        elif kind=='refund_processed' and txn_id in out['transactions']:
+            txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
+            # Starter defect: refund bounds and duplicate event IDs need validation.
+>           txn['refunded_paise']+=refund
+E           TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'
+
+service.py:25: TypeError
+__________ test_invalid_or_excess_refund_does_not_change_account[100] __________
+
+amount = '100'
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+>       result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_acceptance_matrix.py:83:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+account = {'account_id': 'A', 'points_balance': 10, 'processed_event_ids': ['P'], 'transactions': {'T': {'amount_paise': 100000, 'awarded_points': 10, 'reversed_points': 0, 'refunded_paise': 0}}, ...}
+event = {'event_id': 'R', 'type': 'refund_processed', 'transaction_id': 'T', 'amount_paise': '100'}
+rules = {'points_per_100_rupees': 1}
+
+    def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
+        out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+        event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
+        if kind=='purchase_captured':
+            amount=event.get('amount_paise',0)
+            points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
+            if txn_id not in out['transactions']:
+                out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
+                out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
+        elif kind=='refund_processed' and txn_id in out['transactions']:
+            txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
+            # Starter defect: refund bounds and duplicate event IDs need validation.
+>           txn['refunded_paise']+=refund
+E           TypeError: unsupported operand type(s) for +=: 'int' and 'str'
+
+service.py:25: TypeError
+__________ test_invalid_or_excess_refund_does_not_change_account[1.5] __________
+
+amount = 1.5
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+        result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+>       assert result["transactions"]["T"]["refunded_paise"] == 0
+E       assert 1.5 == 0
+
+tests/test_acceptance_matrix.py:84: AssertionError
+_______ test_invalid_or_excess_refund_does_not_change_account[amount12] ________
+
+amount = []
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+>       result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_acceptance_matrix.py:83:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+account = {'account_id': 'A', 'points_balance': 10, 'processed_event_ids': ['P'], 'transactions': {'T': {'amount_paise': 100000, 'awarded_points': 10, 'reversed_points': 0, 'refunded_paise': 0}}, ...}
+event = {'event_id': 'R', 'type': 'refund_processed', 'transaction_id': 'T', 'amount_paise': []}
+rules = {'points_per_100_rupees': 1}
+
+    def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
+        out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+        event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
+        if kind=='purchase_captured':
+            amount=event.get('amount_paise',0)
+            points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
+            if txn_id not in out['transactions']:
+                out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
+                out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
+        elif kind=='refund_processed' and txn_id in out['transactions']:
+            txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
+            # Starter defect: refund bounds and duplicate event IDs need validation.
+>           txn['refunded_paise']+=refund
+E           TypeError: unsupported operand type(s) for +=: 'int' and 'list'
+
+service.py:25: TypeError
+_______ test_invalid_or_excess_refund_does_not_change_account[amount13] ________
+
+amount = {}
+
+    @pytest.mark.parametrize("amount", [0,-1,-50,-1000,100001,150000,200000,999999,True,None,"100",1.5,[],{},False])
+    def test_invalid_or_excess_refund_does_not_change_account(amount):
+        rules = {"points_per_100_rupees":1}
+        account = apply_reward_event(new_account("A"), {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000}, rules)
+>       result = apply_reward_event(account, {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":amount}, rules)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_acceptance_matrix.py:83:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+account = {'account_id': 'A', 'points_balance': 10, 'processed_event_ids': ['P'], 'transactions': {'T': {'amount_paise': 100000, 'awarded_points': 10, 'reversed_points': 0, 'refunded_paise': 0}}, ...}
+event = {'event_id': 'R', 'type': 'refund_processed', 'transaction_id': 'T', 'amount_paise': {}}
+rules = {'points_per_100_rupees': 1}
+
+    def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
+        out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+        event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
+        if kind=='purchase_captured':
+            amount=event.get('amount_paise',0)
+            points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
+            if txn_id not in out['transactions']:
+                out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
+                out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
+        elif kind=='refund_processed' and txn_id in out['transactions']:
+            txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
+            # Starter defect: refund bounds and duplicate event IDs need validation.
+>           txn['refunded_paise']+=refund
+E           TypeError: unsupported operand type(s) for +=: 'int' and 'dict'
+
+service.py:25: TypeError
+____________________________ test_points_use_floor _____________________________
+
+>   def test_points_use_floor(): assert calculate_points(19999,1)==1
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 2 == 1
+E    +  where 2 = calculate_points(19999, 1)
+
+tests/test_contract.py:5: AssertionError
+__________________________ test_cap_zero_is_respected __________________________
+
+>   def test_cap_zero_is_respected(): assert calculate_points(50000,1,cap_points=0)==0
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   assert 5 == 0
+E    +  where 5 = calculate_points(50000, 1, cap_points=0)
+
+tests/test_contract.py:11: AssertionError
+___________________________ test_purchase_event_once ___________________________
+
+    def test_purchase_event_once():
+        a=new_account('A'); e={'event_id':'E1','type':'purchase_captured','transaction_id':'T1','amount_paise':25000}; rules={'points_per_100_rupees':1}
+>       a=apply_reward_event(a,e,rules); b=apply_reward_event(a,e,rules); assert a['points_balance']==2 and b['points_balance']==2 and b['processed_event_ids']==['E1']
+                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert (2 == 2 and 2 == 2 and ['E1', 'E1'] == ['E1']
+E
+E         Left contains one more item: 'E1'
+E         Use -v to get more diff)
+
+tests/test_contract.py:15: AssertionError
+____________________ test_invalid_or_excess_refund_ignored _____________________
+
+    def test_invalid_or_excess_refund_ignored():
+        rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules)
+        for amount in [-1,150000]:
+>           b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T','amount_paise':amount},rules); assert b['transactions']['T']['refunded_paise']==0 and b['points_balance']==10
+                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           assert (-1 == 0)
+
+tests/test_contract.py:29: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[9999-0_0]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[19999-1]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[29999-2]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[49999-4]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[99999-9]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[109999-10]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[199999-19]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[249999-24]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[999999-99]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[19998-1]
+FAILED tests/test_acceptance_matrix.py::test_integer_floor_points_calculation[9999-0_1]
+FAILED tests/test_acceptance_matrix.py::test_bonus_and_cap_matrix[50000-2-50-0-0]
+FAILED tests/test_acceptance_matrix.py::test_bonus_and_cap_matrix[99000-1-10-None-9]
+FAILED tests/test_acceptance_matrix.py::test_bonus_and_cap_matrix[9999-99-99-None-0]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-000]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-001]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-002]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-003]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-004]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-005]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-006]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-007]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-008]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-009]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-010]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-011]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-012]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-013]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-014]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-015]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-016]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-017]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-018]
+FAILED tests/test_acceptance_matrix.py::test_purchase_event_replay_is_idempotent[PURCHASE-019]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[9999]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[19999]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[99999]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[199999]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[987654]
+FAILED tests/test_acceptance_matrix.py::test_capture_purchase_records_consistent_transaction[777777]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[125000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[150000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[175000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[200000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[250000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[300000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[500000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[750000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[1000000]
+FAILED tests/test_acceptance_matrix.py::test_refund_amount_bounds_and_balance[10000000]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[-1]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[-50]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[-1000]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[100001]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[150000]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[200000]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[999999]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[True]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[None]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[100]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[1.5]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[amount12]
+FAILED tests/test_acceptance_matrix.py::test_invalid_or_excess_refund_does_not_change_account[amount13]
+FAILED tests/test_contract.py::test_points_use_floor - assert 2 == 1
+FAILED tests/test_contract.py::test_cap_zero_is_respected - assert 5 == 0
+FAILED tests/test_contract.py::test_purchase_event_once - AssertionError: ass...
+FAILED tests/test_contract.py::test_invalid_or_excess_refund_ignored - assert...
+67 failed, 147 passed in 15.90s

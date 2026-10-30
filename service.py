@@ -1,18 +1,37 @@
 from copy import deepcopy
 
 
-def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
-    # Starter intentionally uses rounding and does not correctly apply every boundary rule.
-    base = round(amount_paise / 10000) * points_per_100_rupees
+def calculate_points(amount_paise: int, points_per_100_rupees: int,
+                     bonus_percent: int = 0,
+                     cap_points: int | None = None) -> int:
+
+    if amount_paise < 0:
+        return 0
+
+    if points_per_100_rupees < 0:
+        return 0
+
+    if bonus_percent < 0:
+        return 0
+
+    base = (amount_paise // 10000) * points_per_100_rupees
+
     points = base * (100 + bonus_percent) // 100
-    if cap_points:
-        points = min(points, cap_points)
-    return max(0, points)
+
+    if cap_points is not None:
+        if cap_points < 0:
+            return 0
+        if points > cap_points:
+            points = cap_points
+
+    return points
 
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
     out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
     event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id')
+    if event_id in out['processed_event_ids']:
+        return out
     if kind=='purchase_captured':
         amount=event.get('amount_paise',0)
         points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
@@ -21,6 +40,14 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
             out['points_balance']+=points; out['ledger'].append({'event_id':event_id,'type':kind,'points_delta':points})
     elif kind=='refund_processed' and txn_id in out['transactions']:
         txn=out['transactions'][txn_id]; refund=event.get('amount_paise',0)
+        if type(refund) != int:
+            return out
+
+        if refund <= 0:
+            return out
+
+        if txn['refunded_paise'] + refund > txn['amount_paise']:
+            return out
         # Starter defect: refund bounds and duplicate event IDs need validation.
         txn['refunded_paise']+=refund
         should_reverse=txn['awarded_points']*txn['refunded_paise']//max(1,txn['amount_paise'])
