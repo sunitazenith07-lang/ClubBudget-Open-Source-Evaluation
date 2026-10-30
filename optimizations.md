@@ -1,23 +1,17 @@
-# optimizations.md - Required submission
+# optimizations.md
 
-Document optimizations you considered or implemented. Do not claim a speedup or improvement unless you measured it.
-
-## 1. Baseline and objective
-- What needed improvement (correctness, clarity, complexity, memory, repeated work, maintainability)?
-- What evidence suggested an improvement could help?
+## 1. Baseline
+I focused on correctness, not speed. I noticed that checking event_id in a list is O(n) and deepcopy runs on every event, but I did not measure either.
 
 ## 2. Options considered
-Describe each option's expected benefit and risk, including rejected ideas.
+- Use a set for processed event ids: faster lookups, but it changes the account format.
+- Remove deepcopy: faster, but the input account would be modified.
 
 ## 3. Changes implemented
-- Change and reason:
-- Tests that protect correctness:
-- Measurement method and result (only if measured):
+None. No speed claim is made because I did not measure anything.
 
 ## 4. Trade-offs
-Explain trade-offs involving clarity, correctness, performance, memory, or maintainability.
+I kept the list and deepcopy because they are simple and keep the caller's account safe.
 
 ## 5. Further improvements
-What would you do next with more time, and how would you validate it?
-
-If you made no optimization change, state that honestly and compare at least two reasonable options. Correctness and maintainability take priority over unnecessary complexity.
+Time the code with timeit on a large number of events, and try a set only if it is slow.
