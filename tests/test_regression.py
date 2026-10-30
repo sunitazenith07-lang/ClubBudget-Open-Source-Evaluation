@@ -258,14 +258,16 @@ def test_repeat_transactions_and_csv_statement_edge_cases():
 def test_zero_amount_purchase_refund_branch():
     rules = {"points_per_100_rupees": 1}
     acct = new_account("ACCT-ZERO")
-    # Purchase with 0 amount
+    # 0-paise purchase is rejected by the amount <= 0 guard — same boundary as calculate_points.
+    # T-0 is never recorded in transactions, so the account is unchanged.
     acct = apply_reward_event(
         acct,
         {"event_id": "P-0", "type": "purchase_captured", "transaction_id": "T-0", "amount_paise": 0},
         rules,
     )
     assert acct["points_balance"] == 0
-    # Any refund > 0 on 0 purchase exceeds amount_paise (0 + 1 > 0), so it is safely rejected
+    assert "T-0" not in acct["transactions"]
+    # Any subsequent refund on T-0 is also safely rejected (unknown transaction_id).
     res = apply_reward_event(
         acct,
         {"event_id": "R-0", "type": "refund_processed", "transaction_id": "T-0", "amount_paise": 10},

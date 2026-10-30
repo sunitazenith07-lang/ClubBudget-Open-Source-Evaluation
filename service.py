@@ -67,7 +67,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
 
     if kind == 'purchase_captured':
         amount = event.get('amount_paise')
-        if not isinstance(amount, int) or isinstance(amount, bool) or amount < 0:
+        if not isinstance(amount, int) or isinstance(amount, bool) or amount <= 0:
             return out
 
         points = calculate_points(
@@ -145,7 +145,7 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int = 2) -> li
     """
     if not isinstance(transactions, list):
         return []
-    if threshold is None or not isinstance(threshold, int) or isinstance(threshold, bool):
+    if threshold is None or not isinstance(threshold, int) or isinstance(threshold, bool) or threshold < 1:
         threshold = 2
     groups = {}
     for tx in transactions:
