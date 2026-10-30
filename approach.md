@@ -10,7 +10,7 @@ Complete this file in your own words. Be concise and specific to the work you ac
 
 - Initial test result (include the actual summary):
     After the first reward calculation changes, 169 tests passed and 45 tests failed.
-    After investigating and making further changes, all 214 tests passed.
+    After investigating and making further changes, all 223 tests passed.
 
 - Demo/output observed:
     Points example: 27
