@@ -10,19 +10,20 @@
   - After the stress-test fixes: `277 passed in 0.07s` (+13 in `tests/test_regressions.py`)
   - After adding the stress tests: `311 passed in 0.62s` (+34 in `tests/test_stress.py`)
   - After handling non-list alert input: `314 passed in 0.64s` (+3 in `tests/test_regressions.py`)
+  - After the threshold-fallback and duplicate-ID fixes: `319 passed in 0.64s` (+5 in `tests/test_regressions.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
-  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 314, Passed 314, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41121388655
+  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork, at the 314-test commit): Total 314, Passed 314, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41121388655
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
 ## Automated run
 - Command: `python -m pytest -q`
-- Total: 314
-- Passed: 314
+- Total: 319
+- Passed: 319
 - Failed: 0
 - Errors: 0
 - Skipped: 0
 
-(Same counts locally on Python 3.14.7 and in CI on Python 3.11.)
+(Local run on Python 3.14.7. The last CI run was at 314 tests, before the two latest fixes.)
 
 ## Edge-case evidence
 
@@ -39,6 +40,8 @@
 | 9 | Exactly `threshold` matching transactions, then one more | No alert, then one alert | `[]`, then 1 group | `test_repeat_alert_threshold_boundaries` |
 | 10 | `transaction_id` is a list `[]` or dict `{}` | Ignored, no crash | balance 0, no transactions | `test_unhashable_identifier_is_ignored_not_crashing` |
 | 11 | All 264 dataset events replayed | Balance never negative, ledger adds up to the balance, no duplicate IDs | true for every account | `test_dataset_reward_events_keep_ledger_consistent` |
+| 12 | Threshold `None` or `"2"` with 2 matching transactions (ambiguity fix) | Falls back to default 2, so no alert; a 3rd one alerts | `[]`, then 1 group | `test_invalid_threshold_falls_back_to_default` |
+| 13 | The same `transaction_id` row sent 3 times (ambiguity fix) | Counted once, so no alert | `[]` | `test_same_transaction_id_is_not_counted_as_a_repeat` |
 
 ## Regression tests added
 All of these are in `tests/test_regressions.py`:
@@ -47,7 +50,7 @@ All of these are in `tests/test_regressions.py`:
 - Missing IDs / bad amounts: `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_invalid_purchase_amount_creates_no_transaction`
 - Refund limits: `test_cumulative_refunds_cannot_exceed_purchase`, `test_partial_refunds_sum_to_full_reversal`, `test_balance_never_negative_even_if_account_already_low`
 - Ledger: `test_ledger_entries_are_auditable_and_sum_to_balance`, `test_dataset_reward_events_keep_ledger_consistent`
-- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_list_alert_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_repeat_groups_are_flagged`
+- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_list_alert_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_invalid_threshold_falls_back_to_default`, `test_same_transaction_id_is_not_counted_as_a_repeat`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_repeat_groups_are_flagged`
 
 Stretch item tests, in `tests/test_threshold_config.py`: `test_threshold_read_from_config`, `test_missing_or_invalid_config_falls_back_to_default`, `test_dataset_threshold_matches_default_result`, `test_raising_threshold_reduces_alerts`, `test_cli_threshold_default_and_override`, `test_cli_threshold_one_flags_sample_pair`, `test_cli_rejects_invalid_threshold`.
 
@@ -58,5 +61,7 @@ I also added `tests/test_stress.py` (34 tests). Instead of one hand-picked examp
 ## Remaining failures or limitations
 - No failing tests.
 - Amount-0 transactions are left out of repeat alerts (48 groups on the dataset instead of 60). That's my assumption, not something the tests require.
+- A threshold that isn't a whole number (`None`, `"2"`, `1.5`) falls back to the default of 2; 0 or negative counts as 1.
+- The same `transaction_id` appearing twice in one group is counted once.
 - Numbers sent as strings, like `"100000"`, are rejected, not converted.
 - If points were already spent, a refund only takes back what's left in the balance.

@@ -31,6 +31,9 @@
 - **Issue 4: repeat alerts.**
   - Problem: a threshold of 0 or less, and rows with missing fields, weren't handled.
   - Fix: a threshold below 1 counts as 1; bad rows are skipped; results are sorted so they come out the same every time, and each alert is marked `needs_review`.
+- **Issue 5 (ambiguity fix): surprising alert behaviour.**
+  - Symptom: in a final review against the problem statement, a threshold of `None` or `"2"` raised alerts for just 2 matching rows (it was treated as 1), and one row sent 3 times alerted as `['T1', 'T1', 'T1']`.
+  - Fix: a non-integer threshold falls back to the default of 2, the same as `repeat_threshold_from_config`; 0 or negative still counts as 1. Each `transaction_id` counts once per group. Tests: `test_invalid_threshold_falls_back_to_default`, `test_same_transaction_id_is_not_counted_as_a_repeat`.
 
 ## 4. Implementation decisions
 - Main changes and why: I kept all the fixes inside `service.py` so the function names and account shape that the tests use didn't change. I added a small helper, `_is_int`, because in Python `True` is technically an `int` (it equals 1), so without the helper `True` would be accepted as 1 paise. Ledger lines now also store `transaction_id`, `amount_paise` and `balance_after`, so you can follow every change to the balance.
@@ -51,6 +54,7 @@
   - `277 passed in 0.07s` after the stress-test fixes
   - `311 passed in 0.62s` after adding the stress tests to `tests/test_stress.py`
   - `314 passed in 0.64s` after making `flag_repeat_transactions` return `[]` for non-list input
+  - `319 passed in 0.64s` after making junk thresholds fall back to the default and counting each transaction ID once per group
 
   `python -m main` gives `Points example: 27` and `Repeat warnings: []`.
 - Edge cases verified: 9999 / 10000 / 19999 paise, cap 0, bonus over 100%, `True`/`"100"`/`1.5` amounts, a refund equal to the purchase, a refund 1 paisa too big, a repeated refund, and a threshold exactly reached vs. exceeded.

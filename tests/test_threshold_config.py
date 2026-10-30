@@ -26,7 +26,7 @@ def test_dataset_threshold_matches_default_result():
 
 
 def test_raising_threshold_reduces_alerts():
-    # dataset groups have exactly 3 transactions: threshold 2 flags them, threshold 3 flags none
+    # dataset groups have 3 rows each
     assert len(flag_repeat_transactions(DATA["transactions"], 2)) == 48
     assert flag_repeat_transactions(DATA["transactions"], 3) == []
 
@@ -37,7 +37,7 @@ def test_cli_threshold_default_and_override():
 
 
 def test_cli_threshold_one_flags_sample_pair():
-    # fixtures have two same-account/date/amount transactions: no alert at 2, one alert at 1
+    # fixtures have one matching pair
     assert flag_repeat_transactions(sample_transactions(), parse_args([]).threshold) == []
     alerts = flag_repeat_transactions(sample_transactions(), parse_args(["--threshold", "1"]).threshold)
     assert [a["transaction_ids"] for a in alerts] == [["TX-1", "TX-2"]]

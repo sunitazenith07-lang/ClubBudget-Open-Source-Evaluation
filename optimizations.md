@@ -1,6 +1,6 @@
 # optimizations.md - Required submission
 
-I didn't add any speed optimizations. My changes were about getting the right answers and making the code easier to read. The full test suite takes about 0.6 s (314 tests, most of that is the random stress tests), so speed wasn't a problem for this task. I did measure how the code behaves with a lot of events, though (section 4).
+I didn't add any speed optimizations. My changes were about getting the right answers and making the code easier to read. The full test suite takes about 0.6 s (319 tests, most of that is the random stress tests), so speed wasn't a problem for this task. I did measure how the code behaves with a lot of events, though (section 4).
 
 ## 1. Baseline and objective
 - What needed improvement: first correctness (67 tests failing), then readability. The starter code crammed each function onto a few long lines joined with `;`, which made the refund bug hard to spot.
@@ -25,7 +25,7 @@ I didn't add any speed optimizations. My changes were about getting the right an
   - working out refund points from the running total
   - a named constant `PAISE_PER_100_RUPEES` instead of a bare `10000`
   - a `_ledger_entry` helper so every ledger line has the same fields
-- Tests that protect correctness: all 214 original tests, plus the new ones in `tests/test_regressions.py` and `tests/test_threshold_config.py` and `tests/test_stress.py` (314 total).
+- Tests that protect correctness: all 214 original tests, plus the new ones in `tests/test_regressions.py` and `tests/test_threshold_config.py` and `tests/test_stress.py` (319 total).
 - Measurement method and result: I didn't do any speed work, so I'm not claiming a speed improvement.
 
 ## 4. Trade-offs

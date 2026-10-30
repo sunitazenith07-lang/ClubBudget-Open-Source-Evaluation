@@ -30,7 +30,7 @@ def test_non_integer_amount_awards_zero(amount):
 
 
 def test_bonus_over_100_percent_then_cap():
-    # 300000 paise -> base 30*3=90 -> 90*250//100=225 -> cap 300 does not apply
+    # 30*3=90 -> 90*250//100=225
     assert calculate_points(300000, 3, 150, 300) == 225
     assert calculate_points(300000, 3, 150, 20) == 20
 
@@ -84,12 +84,11 @@ def test_duplicate_refund_event_is_applied_once():
 def test_cumulative_refunds_cannot_exceed_purchase():
     a = apply_reward_event(new_account("A"), purchase(), RULES)
     b = apply_reward_event(a, refund("R1", amount=60000), RULES)
-    c = apply_reward_event(b, refund("R2", amount=60000), RULES)  # would total 120000 > 100000
+    c = apply_reward_event(b, refund("R2", amount=60000), RULES)  # total 120000 > 100000
     assert c["transactions"]["T"]["refunded_paise"] == 60000 and c["points_balance"] == 4
 
 
 def test_partial_refunds_sum_to_full_reversal():
-    # 25000 paise at 1 point -> 2 points; three partial refunds use cumulative flooring
     a = apply_reward_event(new_account("A"), purchase(amount=25000), RULES)
     for i, amount in enumerate([10000, 10000, 5000]):
         a = apply_reward_event(a, refund(f"R{i}", amount=amount), RULES)
@@ -98,7 +97,7 @@ def test_partial_refunds_sum_to_full_reversal():
 
 def test_balance_never_negative_even_if_account_already_low():
     a = apply_reward_event(new_account("A"), purchase(), RULES)
-    a["points_balance"] = 3  # e.g. points redeemed elsewhere
+    a["points_balance"] = 3  # points spent elsewhere
     b = apply_reward_event(a, refund(amount=100000), RULES)
     assert b["points_balance"] == 0 and b["transactions"]["T"]["reversed_points"] == 3
 
@@ -140,6 +139,20 @@ def test_non_list_alert_input_gives_no_alerts(bad_input):
 def test_non_positive_threshold_is_treated_as_one(threshold):
     rows = [{"transaction_id": "1", "account_id": "A", "date": "D", "amount_paise": 1000}]
     assert flag_repeat_transactions(rows, threshold) == []
+
+
+@pytest.mark.parametrize("threshold", [None, "2", 1.5, True])
+def test_invalid_threshold_falls_back_to_default(threshold):
+    rows = [{"transaction_id": str(i), "account_id": "A", "date": "D", "amount_paise": 1000} for i in range(3)]
+    assert flag_repeat_transactions(rows[:2], threshold) == []
+    assert len(flag_repeat_transactions(rows, threshold)) == 1
+
+
+def test_same_transaction_id_is_not_counted_as_a_repeat():
+    row = {"transaction_id": "T1", "account_id": "A", "date": "D", "amount_paise": 1000}
+    assert flag_repeat_transactions([row, dict(row), dict(row)], 2) == []
+    rows = [row, dict(row), {**row, "transaction_id": "T2"}, {**row, "transaction_id": "T3"}]
+    assert flag_repeat_transactions(rows, 2)[0]["transaction_ids"] == ["T1", "T2", "T3"]
 
 
 def test_rows_missing_keys_are_not_grouped():

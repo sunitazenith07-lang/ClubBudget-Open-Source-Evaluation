@@ -1,8 +1,4 @@
-"""Randomized stress tests.
-
-Each test generates a lot of random input from a fixed seed (so failures can be reproduced)
-and checks rules that must always hold, instead of one hand-picked example.
-"""
+"""Random inputs from fixed seeds, checked against rules that must always hold."""
 import json
 import random
 from copy import deepcopy
@@ -20,7 +16,7 @@ JUNK = [None, True, False, -1, 0, 1.5, float("nan"), float("inf"), "100", "", []
 # --- points calculation ---------------------------------------------------
 
 def reference_points(amount, rate, bonus, cap):
-    # written a different way on purpose: count full Rs.100 units by subtraction
+    # different method on purpose
     units = 0
     while amount >= 10000:
         amount -= 10000
@@ -57,9 +53,9 @@ def test_junk_points_inputs_return_zero_without_crashing():
     for junk in JUNK:
         assert calculate_points(junk, 1) == 0
         assert calculate_points(100000, junk) == 0
-        if junk != 0 or junk is False:  # a bonus of 0 is valid
+        if junk != 0 or junk is False:  # 0 is a valid bonus
             assert calculate_points(100000, 1, junk) == 0
-        if junk is not None:  # None means "no cap"
+        if junk is not None:  # None = no cap
             assert calculate_points(100000, 1, 0, junk) == 0
 
 

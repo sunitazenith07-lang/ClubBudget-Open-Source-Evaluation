@@ -5,12 +5,12 @@ DEFAULT_REPEAT_THRESHOLD = 2
 
 
 def _is_int(value) -> bool:
-    # bool is a subclass of int, but True/False are never valid amounts or rule values.
+    # True/False are ints in Python but never valid values.
     return isinstance(value, int) and not isinstance(value, bool)
 
 
 def _is_hashable(value) -> bool:
-    # IDs are used as dict keys; a list or dict from bad JSON would otherwise raise TypeError.
+    # list/dict IDs can't be dict keys.
     try:
         hash(value)
     except TypeError:
@@ -19,7 +19,7 @@ def _is_hashable(value) -> bool:
 
 
 def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
-    """Integer-only points: floor base, then bonus, then optional cap. Invalid input earns 0."""
+    """Floor base, then bonus, then cap. Invalid input gives 0."""
     if not (_is_int(amount_paise) and _is_int(points_per_100_rupees) and _is_int(bonus_percent)):
         return 0
     if cap_points is not None and not _is_int(cap_points):
@@ -41,12 +41,11 @@ def _ledger_entry(out: dict, event: dict, points_delta: int) -> dict:
 
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
-    """Return a new account with the event applied. Rejected events leave the copy unchanged."""
+    """Return a new account with the event applied; rejected events change nothing."""
     out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
     if not isinstance(event, dict) or not isinstance(rules, dict):
         return out
     event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id'); amount=event.get('amount_paise')
-    # Without both identifiers the event cannot be de-duplicated or linked to a purchase.
     if event_id is None or txn_id is None or not (_is_hashable(event_id) and _is_hashable(txn_id)):
         return out
     if event_id in out['processed_event_ids']:
@@ -56,7 +55,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
 
     if kind=='purchase_captured':
         if txn_id in out['transactions']:
-            return out  # a second capture for the same transaction must not award twice
+            return out  # already captured
         points=calculate_points(amount,rules.get('points_per_100_rupees',1),rules.get('bonus_percent',0),rules.get('cap_points'))
         out['transactions'][txn_id]={'amount_paise':amount,'awarded_points':points,'reversed_points':0,'refunded_paise':0}
         out['points_balance']+=points
@@ -64,7 +63,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
     elif kind=='refund_processed':
         txn=out['transactions'].get(txn_id)
         if txn is None or txn['refunded_paise']+amount > txn['amount_paise']:
-            return out  # unknown transaction, or cumulative refund would exceed the purchase
+            return out  # unknown purchase or over-refund
         txn['refunded_paise']+=amount
         should_reverse=txn['awarded_points']*txn['refunded_paise']//txn['amount_paise']
         delta=min(should_reverse-txn['reversed_points'], out['points_balance'])
@@ -72,7 +71,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
         out['points_balance']-=delta
         delta=-delta
     else:
-        return out  # declined, pending and unknown events never change the account
+        return out  # declined, pending, unknown
 
     out['ledger'].append(_ledger_entry(out,event,delta))
     out['processed_event_ids'].append(event_id)
@@ -80,7 +79,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
 
 
 def repeat_threshold_from_config(config: dict|None) -> int:
-    """Read `repeat_alert_threshold` from a config dict; fall back to the default if missing or invalid."""
+    """Threshold from config, or the default if missing/invalid."""
     value = config.get('repeat_alert_threshold') if isinstance(config, dict) else None
     if not _is_int(value) or value < 1:
         return DEFAULT_REPEAT_THRESHOLD
@@ -88,14 +87,13 @@ def repeat_threshold_from_config(config: dict|None) -> int:
 
 
 def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_REPEAT_THRESHOLD) -> list[dict]:
-    """Group by account/date/amount and return groups with more than `threshold` transactions.
-
-    Alerts are for human review only; they never block or reject a transaction.
-    """
-    if not _is_int(threshold) or threshold < 1:
+    """Groups of same account/date/amount with more than `threshold` rows. Review only, never blocks."""
+    if not _is_int(threshold):
+        threshold = DEFAULT_REPEAT_THRESHOLD  # junk like None or "2"
+    elif threshold < 1:
         threshold = 1
     if not isinstance(transactions, (list, tuple)):
-        return []  # None, a number or any other non-list input has nothing to group
+        return []
     groups={}
     for tx in transactions:
         if not isinstance(tx, dict):
@@ -105,7 +103,8 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_RE
             continue
         if not _is_hashable(key):
             continue
-        groups.setdefault(key,[]).append(tx.get('transaction_id'))
-    # ids are sorted so the same transactions give the same alert whatever order they arrive in
+        ids=groups.setdefault(key,[])
+        if tx.get('transaction_id') not in ids:
+            ids.append(tx.get('transaction_id'))  # count each id once
     return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':sorted(ids,key=str),'count':len(ids),'status':'needs_review'}
             for k,ids in sorted(groups.items(),key=lambda item:(str(item[0][0]),str(item[0][1]),item[0][2])) if len(ids)>threshold]

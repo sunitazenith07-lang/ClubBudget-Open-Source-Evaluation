@@ -7,7 +7,7 @@ from service import DEFAULT_REPEAT_THRESHOLD, calculate_points, flag_repeat_tran
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description='RewardBook offline demo')
     parser.add_argument('--threshold', type=int, default=DEFAULT_REPEAT_THRESHOLD,
-                        help='alert when an account has MORE than this many same-day, same-amount transactions (default: %(default)s)')
+                        help='alert above this many matching transactions (default: %(default)s)')
     args = parser.parse_args(argv)
     if args.threshold < 1:
         parser.error('--threshold must be 1 or more')

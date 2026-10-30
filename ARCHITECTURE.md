@@ -10,7 +10,7 @@
 | `main.py` | Offline demo (`python -m main`). Prints one points example and the repeat alerts. `--threshold N` changes the alert threshold. |
 | `data/records.json` | Bigger synthetic dataset: 264 reward events, 180 repeat-pattern transactions, 8 rule cases, `repeat_alert_threshold`. Used by tests. |
 | `tests/test_contract.py`, `tests/test_acceptance_matrix.py` | The original tests from the starter (214). |
-| `tests/test_regressions.py` | My regression tests for each fix (51). |
+| `tests/test_regressions.py` | My regression tests for each fix (56). |
 | `tests/test_threshold_config.py` | Tests for the configurable threshold (15). |
 | `tests/test_stress.py` | Randomized tests that check rules that must always hold (34). |
 | `.github/workflows/tests.yml` | CI: runs the demo and `pytest` on Python 3.11 and publishes the test counts. |
@@ -76,9 +76,9 @@ Rules that always hold (checked in `tests/test_stress.py`):
 5. Any other type: ignore it.
 6. For accepted events only: add a ledger line and record the `event_id`.
 
-**Repeat alerts:** `flag_repeat_transactions(transactions, threshold)`. Skip bad rows (missing fields, amount ≤ 0, list/dict keys). Group by `(account_id, date, amount_paise)`, keep groups with **more than** `threshold` items, sort them, and mark each one `needs_review`. Alerts are only for a human to look at; they never block a payment.
+**Repeat alerts:** `flag_repeat_transactions(transactions, threshold)`. Skip bad rows (missing fields, amount ≤ 0, list/dict keys) and count each `transaction_id` once per group. Group by `(account_id, date, amount_paise)`, keep groups with **more than** `threshold` items, sort them, and mark each one `needs_review`. Alerts are only for a human to look at; they never block a payment.
 
-**Threshold:** default 2. It can come from `repeat_alert_threshold` in a config dict (`repeat_threshold_from_config`) or `python -m main --threshold N`. Anything below 1 counts as 1.
+**Threshold:** default 2. It can come from `repeat_alert_threshold` in a config dict (`repeat_threshold_from_config`) or `python -m main --threshold N`. Anything below 1 counts as 1; a non-integer threshold falls back to 2.
 
 ## Storage design
 

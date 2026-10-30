@@ -52,7 +52,7 @@ A second refund, `EV-3` of 159900 paise, makes the total 259900 (the full purcha
 - **Missing fields:** events with no `event_id` or `transaction_id`, or an amount that isn't a positive whole number, are ignored and not marked as processed, so a fixed version can be sent again. If a rule is missing, the defaults are 1 point per ₹100, 0% bonus and no cap.
 - **Event types:** only `purchase_captured` and `refund_processed` (exact spelling) change the account. Declined, pending or unknown events do nothing.
 - **Repeat alerts:**
-  - A group alerts when it has *more than* `threshold` transactions with the same account, date and amount. A threshold below 1 counts as 1.
+  - A group alerts when it has *more than* `threshold` transactions with the same account, date and amount. A threshold below 1 counts as 1, and a threshold that isn't a whole number (`None`, `"2"`) falls back to the default of 2. The same `transaction_id` appearing twice in a group is counted once.
   - The threshold can be changed (stretch item): the default is 2, it can come from `repeat_alert_threshold` in a config dict, or you can use `python -m main --threshold N`.
   - Rows with missing fields or amount ≤ 0 are skipped, which gives 48 alert groups on `data/records.json`.
   - Alerts are marked `needs_review` and never block a payment.
