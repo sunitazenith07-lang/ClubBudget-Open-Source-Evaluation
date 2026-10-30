@@ -1,6 +1,6 @@
 # optimizations.md - Required submission
 
-No performance optimization was implemented or measured. The changes were for correctness and clarity. The test suite runs in about 0.06 s (249 tests), so speed was not the problem.
+No performance optimization was implemented or measured. The changes were for correctness and clarity. The test suite runs in about 0.06 s (264 tests), so speed was not the problem.
 
 ## 1. Baseline and objective
 - What needed improvement: correctness first (67 failing tests), then readability. The starter put each function on a few long lines separated by `;`, which made the refund bug hard to see.
@@ -29,5 +29,5 @@ No performance optimization was implemented or measured. The changes were for co
 
 ## 5. Further improvements
 - If accounts get large: store processed IDs in a set (or a database unique index) and stop deep-copying the whole history. Validate by timing `apply_reward_event` on accounts with 10k / 100k events before and after, and re-run the full test suite.
-- Make the repeat threshold a configurable setting (one of the stretch options) instead of a function argument default.
+- ~~Make the repeat threshold configurable~~ — done as the stretch item: `repeat_threshold_from_config()` and `python -m main --threshold N`.
 - Replace the plain dicts with dataclasses so a typo in a field name fails loudly.

@@ -6,6 +6,8 @@
 - Actual test summary:
   - Baseline (untouched starter): `67 failed, 147 passed in 0.17s`
   - After fix: `249 passed in 0.06s` (214 original + 35 new; 0 failed, 0 errors, 0 skipped)
+  - After stretch item: `264 passed in 0.06s` (+15 in `tests/test_threshold_config.py`)
+  - `python -m main --threshold 1` → one alert for TX-1/TX-2; `python -m main --threshold 0` → `error: --threshold must be 1 or more`
   - Demo after fix: `Points example: 27`, `Repeat warnings: []` (starter printed 28)
 
 ## Edge-case evidence
@@ -33,6 +35,8 @@ All in `tests/test_regressions.py`:
 - Repeat alerts → `test_empty_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_rows_missing_keys_are_not_grouped`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_dataset_repeat_groups_are_flagged`
 
 No existing test was edited, skipped or deleted, and the CI workflow is unchanged.
+
+Stretch item (configurable threshold), in `tests/test_threshold_config.py`: `test_threshold_read_from_config`, `test_missing_or_invalid_config_falls_back_to_default`, `test_dataset_threshold_matches_default_result`, `test_raising_threshold_reduces_alerts`, `test_cli_threshold_default_and_override`, `test_cli_threshold_one_flags_sample_pair`, `test_cli_rejects_invalid_threshold`.
 
 ## Remaining failures or limitations
 - No failing tests.

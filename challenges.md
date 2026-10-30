@@ -34,7 +34,7 @@ There was no single blocker that stopped progress. The real difficulties were an
 
 ## 5. Proof and regression prevention
 - `tests/test_regressions.py::test_partial_refunds_sum_to_full_reversal`, `test_cumulative_refunds_cannot_exceed_purchase`, `test_invalid_purchase_amount_creates_no_transaction[True]`, `test_event_missing_identifier_is_ignored`, `test_dataset_repeat_groups_are_flagged`, `test_dataset_reward_events_keep_ledger_consistent`.
-- Final run: `249 passed in 0.06s`.
+- Final run: `249 passed in 0.06s` after the core fix, `264 passed in 0.06s` after adding the configurable threshold.
 - Could still break: an amount passed as a numeric string such as `"100000"` is rejected rather than parsed; if upstream systems send strings, real purchases would earn nothing.
 
 ## 6. Unresolved challenge or next step

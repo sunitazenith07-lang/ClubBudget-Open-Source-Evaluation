@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 PAISE_PER_100_RUPEES = 10000
+DEFAULT_REPEAT_THRESHOLD = 2
 
 
 def _is_int(value) -> bool:
@@ -67,7 +68,15 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
     return out
 
 
-def flag_repeat_transactions(transactions: list[dict], threshold: int=2) -> list[dict]:
+def repeat_threshold_from_config(config: dict|None) -> int:
+    """Read `repeat_alert_threshold` from a config dict; fall back to the default if missing or invalid."""
+    value = config.get('repeat_alert_threshold') if isinstance(config, dict) else None
+    if not _is_int(value) or value < 1:
+        return DEFAULT_REPEAT_THRESHOLD
+    return value
+
+
+def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_REPEAT_THRESHOLD) -> list[dict]:
     """Group by account/date/amount and return groups with more than `threshold` transactions.
 
     Alerts are for human review only; they never block or reject a transaction.
