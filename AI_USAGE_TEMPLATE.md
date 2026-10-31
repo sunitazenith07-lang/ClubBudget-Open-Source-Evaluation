@@ -1,13 +1,12 @@
+<!-- DRAFT: resolve every [VERIFY] and [FILL] marker with your own run/edits, then delete this comment. -->
 # AI-Use Declaration
 
-## Tools, models, and sources used
-- **Tool/Model:** Antigravity (powered by Gemini 3.8 Flash).
-- **Purpose of use:** Codebase inspection, baseline defect tracing, running automated test suites, drafting regression tests, and generating documentation artifacts following repository guidelines.
-- **Independent verification & modifications:**
-  - Independently verified all Python arithmetic by executing manual calculations and automated pytest suites (`221 passed in 0.05s`).
-  - Audited type handling in Python, specifically verifying that `bool` is a subclass of `int` and implementing explicit guards (`not isinstance(val, bool)`) to prevent `True`/`False` from being processed as numbers.
-  - Formulated edge cases for cumulative proportional refund reversals and verified mathematically against edge cases in `data/records.json`.
-- **Displayed credits / tokens:** Not available in this local runtime environment.
-- **Suggestion evaluated (accepted / modified / rejected):**
-  - *Suggestion considered:* Converting `processed_event_ids` to a Python `set` in `models.py` for $O(1)$ lookup performance.
-  - *Decision / Reason:* **Rejected.** Converting `processed_event_ids` to a `set` would break the public data model contract, break existing assertions in `tests/test_contract.py` that check for exact ordered list equality (`['E1']`), and compromise standard JSON serialization. Kept as an ordered list while noting the hybrid internal set as a future architectural improvement.
+- **Tool/model:** Claude Sonnet 5.5 (Anthropic), used through claude.ai in a project containing the repository files.
+- **Authorisation:** [FILL: where the organiser announced that AI is allowed, with date and link or screenshot reference]. The repository documents still contain the older no-AI wording.
+- **Why I used it:** to explain the problem statement, to trace the failing tests to root causes in `service.py`, to draft the fix and the regression tests, and to draft these notes from the real results.
+- **Credits/tokens displayed:** not available.
+- **What I verified or changed myself:** [FILL: e.g. re-ran the baseline and the full suite locally, traced each of the 12 fixes to its failing test, ran `records.json` through the service, edited these notes]. The AI also ran the tests in its own sandbox, so I reran everything on my machine before relying on any number.
+- **Suggestions:**
+  - **Rejected:** the AI first suggested changing the repeat-alert comparison from `>` to `>=`. I checked the tests, saw they pin `>`, and kept it.
+  - **Accepted:** floor division and `cap_points is not None`.
+  - **Modified:** [FILL: one thing you changed from the AI's draft, if any]
