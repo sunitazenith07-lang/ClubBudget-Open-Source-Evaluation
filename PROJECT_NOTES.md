@@ -56,7 +56,7 @@ didn't touch any of the original tests or the CI file. not allowed to, and didn'
 - after making the alert function return `[]` for non-list input (it crashed on a plain number): `314 passed`
 - after fixing junk thresholds (they now fall back to 2) and not counting the same transaction id twice: `319 passed`
 - after the extreme stress fixes: `326 passed`
-- CI on github (python 3.11, before the extreme fixes): `319 passed, 0 failed`. run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
+- CI on github (python 3.11): `326 passed, 0 failed`. run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41148987600
 - `python -m main` prints `Points example: 27` (the old one said 28, which was wrong)
 
 edge cases are in `TESTING.md` if you want them. there are 17.
