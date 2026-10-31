@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: clubbudget-evaluation-starter
+Version: 1.0.0
+Summary: Loyalty rewards, points calculation, refund reversals and repeat-transaction alerts
+Requires-Python: >=3.10
