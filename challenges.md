@@ -3,21 +3,45 @@
 This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
 
 ## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+The main challenge was handling partial and excess refunds while ensuring that the account balance never became negative. The starter code did not properly validate refund amounts, which allowed invalid refunds to affect transactions and points.
+
 
 ## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
+The failure was directly reproducible across both unit tests and parameterized matrix tests:
+
+test_invalid_or_excess_refund_ignored failed because an excessive refund reduced the balance below zero.
+
+Negative refund amounts could incorrectly increase points.
+
+Boolean values like True were accepted as integers.
+
+Invalid inputs such as strings, floats, None, lists, and dictionaries were not rejected.
 
 ## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+During investigation and debugging, I tested three approaches:
+
+Used max(0, points) to prevent a negative balance, but invalid transaction data could still be updated.
+
+Checked refunds against the purchase amount, but this did not handle multiple partial refunds correctly.
+
+Used isinstance(refund, int), but it also accepted Boolean values.
+
 
 ## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+I added validation in apply_reward_event in service.py:
+
+if type(refund) is not int or refund <= 0 or txn['refunded_paise'] + refund > txn['amount_paise']:
+    return out
+
+This rejects invalid, negative, zero, Boolean, and excessive refunds before changing the transaction or account balance.
 
 ## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
+The relevant refund tests passed, including partial refund and invalid refund cases.
 
+The complete test suite passed: 214 passed in 0.18s.
+
+
+-
 ## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
+The current implementation does not handle simultaneous refund requests using database locking. A future improvement would be to add database transactions, row-level locking, and warning logs for rejected refunds.
 
-If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.
