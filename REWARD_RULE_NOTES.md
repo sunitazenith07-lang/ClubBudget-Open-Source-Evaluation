@@ -1,18 +1,26 @@
 # REWARD_RULE_NOTES.md — Required submission
 
-Complete this file with your own actual examples and results. Do not leave prompts unanswered.
-
 ## 1. Worked points calculation
-Show one purchase calculation from amount in paise through base points, bonus and cap. State the rounding rule at each step and include the actual output.
+- Purchase amount: 259900 paise
+- Base points: floor(259900 / 10000) * 1 = 25
+- Bonus 10%: floor(25 * 110 / 100) = 27
+- Cap: 100, final = 27
+- Actual output from `main.py`: `Points example: 27`
 
 ## 2. Partial-refund example
-Show the points originally awarded, the refund amount, how the reversal is calculated, the resulting balance, and the relevant ledger entry.
+- Original purchase: 100000 paise, awarded 10 points
+- Refund amount: 50000 paise
+- Reversal: 10 * 50000 // 100000 = 5
+- Resulting balance: 5 points
+- Ledger entry: `{'event_id': ..., 'type': 'refund_processed', 'points_delta': -5}`
 
 ## 3. Three edge cases
-For each, provide input, expected behaviour, actual observed result, and the test that verifies it.
-1.
-2.
-3.
+1. Amount below 10000 paise earns 0 points. Verified by `test_integer_floor_points_calculation`.
+2. Cap of 0 forces 0 points. Verified by `test_cap_zero_is_respected`.
+3. Invalid/excess refund leaves account unchanged. Verified by `test_invalid_or_excess_refund_does_not_change_account`.
 
 ## 4. Assumptions and limitations
-Document rounding assumptions, missing-field handling, repeat-alert threshold assumptions, and any unresolved issue.
+- Amounts are in paise.
+- Points use floor division at base and bonus steps.
+- Refunds are accepted only as positive integers within remaining refundable amount.
+- Repeat alerts are advisory and do not block transactions.
