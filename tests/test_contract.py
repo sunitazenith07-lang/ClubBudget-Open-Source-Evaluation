@@ -21,7 +21,7 @@ def test_declined_event_does_not_award():
     out=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_declined','transaction_id':'T','amount_paise':100000},{'points_per_100_rupees':1}); assert out['points_balance']==0
 
 def test_partial_refund_reverses_proportionally():
-    rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T1','amount_paise':100000},rules); b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T1','amount_paise':50000},rules); assert b['points_balance']==5
+    rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T1','amount_paise':100000},rules); b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T1','amount_paise':50000},rules); assert b['points_balance']==5 and b['transactions']['T1']['reversed_points']==5
 
 def test_invalid_or_excess_refund_ignored():
     rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules)
