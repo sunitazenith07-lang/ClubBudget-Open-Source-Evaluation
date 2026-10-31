@@ -43,7 +43,7 @@ CI (GitHub Actions, Python 3.11, run on my fork): 326 passed, 0 failed, 0 errors
 ## Required problem-solving documents (all three mandatory; 15 marks total)
 - [x] `approach.md` completed (5 marks). It explains the implementation approach and connects the original test failures to the relevant issues in `service.py`.
 - [x] `challenges.md` completed (COMPULSORY; 5 marks). The main insight was that partial refunds must be calculated cumulatively. Rounding each refund separately could leave 1 point after a full refund of a 156-point purchase.
-- [x] `optimizations.md` completed (5 marks). It compares using a list and a set for tracking processed event IDs and explains why the existing list was retained.
+- [x] `optimizations.md` completed (5 marks). It compares a list and a set for tracking processed event IDs and explains why the list was kept, and it records one measured speed-up: collecting alert IDs in a set made one 40,000-row group go from 4.18 s to 0.01 s.
 
 ## Edge cases checked
 1. A purchase of 19999 paise should generate 1 point instead of 2. Actual: 1 point.
