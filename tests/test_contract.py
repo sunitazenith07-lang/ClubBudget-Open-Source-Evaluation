@@ -23,10 +23,26 @@ def test_declined_event_does_not_award():
 def test_partial_refund_reverses_proportionally():
     rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules); b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T','amount_paise':50000},rules); assert b['points_balance']==5 and b['transactions']['T']['reversed_points']==5
 
+def test_refund_event_replay_is_idempotent():
+    rules={'points_per_100_rupees':1}
+    account=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules)
+    refund={'event_id':'E2','type':'refund_processed','transaction_id':'T','amount_paise':50000}
+    once=apply_reward_event(account,refund,rules); twice=apply_reward_event(once,refund,rules)
+    assert twice['points_balance']==5
+    assert twice['transactions']['T']['refunded_paise']==50000
+    assert twice['processed_event_ids']==['E1','E2']
+    assert len(twice['ledger'])==2
+
 def test_invalid_or_excess_refund_ignored():
     rules={'points_per_100_rupees':1}; a=apply_reward_event(new_account('A'),{'event_id':'E1','type':'purchase_captured','transaction_id':'T','amount_paise':100000},rules)
     for amount in [-1,150000]:
         b=apply_reward_event(a,{'event_id':'E2','type':'refund_processed','transaction_id':'T','amount_paise':amount},rules); assert b['transactions']['T']['refunded_paise']==0 and b['points_balance']==10
+
+def test_missing_event_identifier_cannot_award_purchase():
+    result=apply_reward_event(new_account('A'),{'type':'purchase_captured','transaction_id':'T','amount_paise':100000},{'points_per_100_rupees':1})
+    assert result['points_balance']==0
+    assert result['transactions']=={}
+    assert result['ledger']==[]
 
 def test_unknown_refund_safe(): assert apply_reward_event(new_account('A'),{'event_id':'E1','type':'refund_processed','transaction_id':'X','amount_paise':1000},{'points_per_100_rupees':1})['points_balance']==0
 
@@ -35,3 +51,7 @@ def test_repeat_group():
 
 def test_different_accounts_not_grouped():
     rows=[{'transaction_id':'1','account_id':'A','date':'D','amount_paise':1000},{'transaction_id':'2','account_id':'B','date':'D','amount_paise':1000}]; assert flag_repeat_transactions(rows,1)==[]
+
+def test_repeat_groups_ignore_records_missing_identifiers():
+    rows=[{'transaction_id':str(i),'account_id':None,'date':'D','amount_paise':1000} for i in range(3)]
+    assert flag_repeat_transactions(rows,2)==[]
