@@ -22,7 +22,7 @@
 - Assumptions: refund amounts are in paise; invalid refund events are ignored entirely; missing identifiers are handled defensively.
 
 ## 5. Verification
-- Tests added or changed: none; existing tests retained.
+- Tests added or changed: added `tests/test_regression.py` with 7 regression tests; existing tests retained.
 - Commands run and actual results: `python -m pytest -q` -> `214 passed in 0.58s`; `python main.py` -> successful output.
 - Edge cases verified: replay events, invalid/excess refunds, boundary refund amounts, negative/invalid rules, empty and malformed repeat inputs.
 - Remaining failures or known limitations: none for code tests; documentation files still need final manual completion if required by submission.
