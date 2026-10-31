@@ -1,23 +1,27 @@
-# challenges.md - COMPULSORY submission
+# Open Source Evaluation
 
-This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
+## What I Did
 
-## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+- Forked the repository and cloned it locally.
+- Went through all the files and tried to understand the codebase.
+- The only change I could confidently understand and make was:
+  - Before: `round(amount_paise / 10000)`
+  - After: `amount_paise // 10000`
+  - This made a few test cases pass :/
 
-## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
+## Why I Didn't Do More
 
-## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+We're currently learning programming fundamentals, practising nested while loops and pattern printing. We haven't even started functions yet.
 
-## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+Understanding an entire repository at this stage is quite a leap from my current level. I acknowledge that I lack the fundamentals to comprehend this codebase properly.
 
-## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
+I don't think getting AI to do something I don't understand would add much value to my learning.
 
-## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
+## What I Did Instead
 
-If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.
+I didn't waste my time. I used it to:
+
+- Practise pattern printing.
+- Complete Assignments 17 and 19.
+- Revise Logic 3 – Karnaugh Maps and Boolean Algebra Minimisation.
+- Revise Logic 4 – Logic Circuit Design.
