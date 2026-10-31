@@ -1,4 +1,5 @@
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -66,6 +67,13 @@ def test_invalid_purchase_amount_creates_no_transaction(amount):
     assert out["transactions"] == {} and out["ledger"] == []
 
 
+@pytest.mark.parametrize("account", [None, [], "A", 5])
+def test_non_dict_account_is_treated_as_empty(account):
+    out = apply_reward_event(account, purchase(), RULES)
+    assert out == apply_reward_event({}, purchase(), RULES)
+    assert out["points_balance"] == 10 and len(out["ledger"]) == 1
+
+
 def test_rejected_event_id_can_be_retried_with_valid_data():
     a = apply_reward_event(new_account("A"), purchase(amount=None), RULES)
     b = apply_reward_event(a, purchase(), RULES)
@@ -100,6 +108,14 @@ def test_balance_never_negative_even_if_account_already_low():
     a["points_balance"] = 3  # points spent elsewhere
     b = apply_reward_event(a, refund(amount=100000), RULES)
     assert b["points_balance"] == 0 and b["transactions"]["T"]["reversed_points"] == 3
+
+
+def test_refund_never_adds_points_to_a_negative_balance():
+    a = apply_reward_event(new_account("A"), purchase(), RULES)
+    a["points_balance"] = -5  # overdrawn elsewhere
+    b = apply_reward_event(a, refund(amount=50000), RULES)
+    assert b["points_balance"] == -5 and b["transactions"]["T"]["reversed_points"] == 0
+    assert b["ledger"][-1]["points_delta"] == 0
 
 
 # --- ledger ------------------------------------------------------------------
@@ -181,6 +197,20 @@ def test_unhashable_alert_keys_are_skipped_not_crashing(field, bad):
     rows[0][field] = bad
     assert flag_repeat_transactions(rows, 1) == [{"account_id": "A", "date": "D", "amount_paise": 1000,
                                                   "transaction_ids": ["1", "2"], "count": 2, "status": "needs_review"}]
+
+
+def test_unhashable_transaction_id_rows_are_skipped_in_alerts():
+    rows = [{"transaction_id": tid, "account_id": "A", "date": "D", "amount_paise": 1000} for tid in ["1", "2", "3", [], {}]]
+    result = flag_repeat_transactions(rows, 2)
+    assert result[0]["transaction_ids"] == ["1", "2", "3"] and result[0]["count"] == 3
+
+
+def test_one_huge_repeat_group_stays_fast():
+    rows = [{"transaction_id": f"TX{i}", "account_id": "A", "date": "D", "amount_paise": 1000} for i in range(100_000)]
+    start = time.perf_counter()
+    result = flag_repeat_transactions(rows + rows[:1000], 2)
+    assert time.perf_counter() - start < 2  # a list-based id check took 4.2 s for 40,000 rows
+    assert result[0]["count"] == 100_000
 
 
 def test_dataset_repeat_groups_are_flagged():

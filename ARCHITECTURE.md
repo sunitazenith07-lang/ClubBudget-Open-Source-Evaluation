@@ -10,7 +10,7 @@
 | `main.py` | Offline demo (`python -m main`). Prints one points example and the repeat alerts. `--threshold N` changes the alert threshold. |
 | `data/records.json` | Bigger synthetic dataset: 264 reward events, 180 repeat-pattern transactions, 8 rule cases, `repeat_alert_threshold`. Used by tests. |
 | `tests/test_contract.py`, `tests/test_acceptance_matrix.py` | The original tests from the starter (214). |
-| `tests/test_regressions.py` | My regression tests for each fix (56). |
+| `tests/test_regressions.py` | My regression tests for each fix (63). |
 | `tests/test_threshold_config.py` | Tests for the configurable threshold (15). |
 | `tests/test_stress.py` | Randomized tests that check rules that must always hold (34). |
 | `.github/workflows/tests.yml` | CI: runs the demo and `pytest` on Python 3.11 and publishes the test counts. |
@@ -65,18 +65,18 @@ Rules that always hold (checked in `tests/test_stress.py`):
 **Points:** `amount_paise // 10000` (full ₹100s) × `points_per_100_rupees` → add the bonus (`× (100 + bonus) // 100`) → apply the cap last. Any invalid input gives 0.
 
 **Applying an event:** `apply_reward_event(account, event, rules)`
-1. Make a `deepcopy` of the account, so the caller's account is never changed.
+1. Make a `deepcopy` of the account, so the caller's account is never changed. A non-dict account (like `None`) starts as an empty one.
 2. Reject the event (return the copy unchanged) if:
    - it isn't a dict
    - `event_id` or `transaction_id` is missing or not hashable
    - `event_id` was already processed
    - the amount isn't a positive whole number
 3. `purchase_captured`: if this `transaction_id` already exists, ignore it. Otherwise call `calculate_points`, save the transaction and add the points.
-4. `refund_processed`: find the purchase and reject the refund if the total refunded would go over the purchase amount. Points to take back = `awarded × total_refunded // amount`, minus what was already taken back, limited to the current balance.
+4. `refund_processed`: find the purchase and reject the refund if the total refunded would go over the purchase amount. Points to take back = `awarded × total_refunded // amount`, minus what was already taken back, limited to the current balance and never below 0, so a refund can't add points.
 5. Any other type: ignore it.
 6. For accepted events only: add a ledger line and record the `event_id`.
 
-**Repeat alerts:** `flag_repeat_transactions(transactions, threshold)`. Skip bad rows (missing fields, amount ≤ 0, list/dict keys) and count each `transaction_id` once per group. Group by `(account_id, date, amount_paise)`, keep groups with **more than** `threshold` items, sort them, and mark each one `needs_review`. Alerts are only for a human to look at; they never block a payment.
+**Repeat alerts:** `flag_repeat_transactions(transactions, threshold)`. Skip bad rows (missing fields, amount ≤ 0, a list/dict account, date or `transaction_id`) and collect each group's IDs in a set, so each one counts once and huge groups stay fast. Group by `(account_id, date, amount_paise)`, keep groups with **more than** `threshold` items, sort them, and mark each one `needs_review`. Alerts are only for a human to look at; they never block a payment.
 
 **Threshold:** default 2. It can come from `repeat_alert_threshold` in a config dict (`repeat_threshold_from_config`) or `python -m main --threshold N`. Anything below 1 counts as 1; a non-integer threshold falls back to 2.
 
@@ -86,7 +86,7 @@ There's no database. Everything is in memory, and the functions are **pure**: th
 
 Why it's built like this: it's easy to test (same input, same output), and a bad event can't half-update an account.
 
-The downside is that every event copies the whole account. Replaying 1,000 / 2,000 / 4,000 events into one account took about 0.7 s / 2.8 s / 11.2 s, so it gets slow as the history grows (see `optimizations.md`). In a real system I'd store accounts, transactions and ledger lines in a database table, with a unique index on `event_id` for the duplicate check.
+The downside is that every event copies the whole account. Replaying 1,000 / 2,000 / 4,000 / 8,000 events into one account took about 0.7 s / 2.8 s / 11.2 s / 45.4 s, so it gets slow as the history grows (see `optimizations.md`). In a real system I'd store accounts, transactions and ledger lines in a database table, with a unique index on `event_id` for the duplicate check.
 
 ## Diagram
 

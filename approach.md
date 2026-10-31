@@ -34,6 +34,9 @@
 - **Issue 5 (ambiguity fix): surprising alert behaviour.**
   - Symptom: in a final review against the problem statement, a threshold of `None` or `"2"` raised alerts for just 2 matching rows (it was treated as 1), and one row sent 3 times alerted as `['T1', 'T1', 'T1']`.
   - Fix: a non-integer threshold falls back to the default of 2, the same as `repeat_threshold_from_config`; 0 or negative still counts as 1. Each `transaction_id` counts once per group. Tests: `test_invalid_threshold_falls_back_to_default`, `test_same_transaction_id_is_not_counted_as_a_repeat`.
+- **Issue 6 (extreme stress test): three robustness problems.**
+  - Symptom: a probe script with deliberately broken inputs showed that a refund on an account already at −5 points *added* 5 points, `apply_reward_event(None, ...)` crashed with `AttributeError`, and one alert group of 40,000 rows took 4.18 s (0.01 s before the duplicate-ID fix).
+  - Fix: `max(0, ...)` around the points taken back; a non-dict account is treated like `{}`; alert IDs go into a set, and rows with a list/dict `transaction_id` are skipped. Tests: `test_refund_never_adds_points_to_a_negative_balance`, `test_non_dict_account_is_treated_as_empty`, `test_unhashable_transaction_id_rows_are_skipped_in_alerts`, `test_one_huge_repeat_group_stays_fast`.
 
 ## 4. Implementation decisions
 - Main changes and why: I kept all the fixes inside `service.py` so the function names and account shape that the tests use didn't change. I added a small helper, `_is_int`, because in Python `True` is technically an `int` (it equals 1), so without the helper `True` would be accepted as 1 paise. Ledger lines now also store `transaction_id`, `amount_paise` and `balance_after`, so you can follow every change to the balance.
@@ -47,7 +50,7 @@
 ## 5. Verification
 - Tests added or changed: I added `tests/test_regressions.py`. It covers bad rules and amounts, duplicate events, missing IDs, retrying after a rejection, refund limits, partial refunds, the balance never going negative, ledger fields, alert edge cases, and replaying the whole dataset. I didn't edit, skip or delete any existing tests.
 - Stretch item (configurable threshold): the alert threshold can now be changed. `repeat_threshold_from_config()` reads `repeat_alert_threshold` from a config dict (it falls back to 2 if the value is missing or bad), and `python -m main --threshold N` sets it from the command line. The default behaviour is the same as before. Tests are in `tests/test_threshold_config.py`.
-- Stress testing: I added `tests/test_stress.py`, which runs a few thousand random inputs against the code. That found a crash when an ID was a list or dict, which I fixed (see `challenges.md`).
+- Stress testing: I added `tests/test_stress.py`, which runs a few thousand random inputs against the code. That found a crash when an ID was a list or dict, which I fixed (see `challenges.md`). Later I ran an extreme suite from a scratch folder (10,562 tests, not committed) that checks the whole account against a separate reference model after every event; see `TESTING.md`.
 - Commands run and actual results: `python -m pytest -q` gave:
   - `249 passed` after the main fix (214 original + 35 new)
   - `264 passed` after the stretch item
@@ -55,6 +58,7 @@
   - `311 passed in 0.62s` after adding the stress tests to `tests/test_stress.py`
   - `314 passed in 0.64s` after making `flag_repeat_transactions` return `[]` for non-list input
   - `319 passed in 0.64s` after making junk thresholds fall back to the default and counting each transaction ID once per group
+  - `326 passed in 0.70s` after the extreme-stress fixes (refund clamp, non-dict account, set-based alert IDs)
 
   `python -m main` gives `Points example: 27` and `Repeat warnings: []`.
 - Edge cases verified: 9999 / 10000 / 19999 paise, cap 0, bonus over 100%, `True`/`"100"`/`1.5` amounts, a refund equal to the purchase, a refund 1 paisa too big, a repeated refund, and a threshold exactly reached vs. exceeded.

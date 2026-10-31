@@ -11,19 +11,20 @@
   - After adding the stress tests: `311 passed in 0.62s` (+34 in `tests/test_stress.py`)
   - After handling non-list alert input: `314 passed in 0.64s` (+3 in `tests/test_regressions.py`)
   - After the threshold-fallback and duplicate-ID fixes: `319 passed in 0.64s` (+5 in `tests/test_regressions.py`)
+  - After the extreme-stress fixes: `326 passed in 0.70s` (+7 in `tests/test_regressions.py`)
   - Demo: `Points example: 27`, `Repeat warnings: []` (the starter printed 28)
-  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork): Total 319, Passed 319, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
+  - CI (GitHub Actions "Validation tests", Python 3.11, on my fork, at the 319-test commit): Total 319, Passed 319, Failed 0, Errors 0, Skipped 0. Demo step printed `Points example: 27`. Run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
   - `python -m main --threshold 1` shows one alert for TX-1/TX-2, and `python -m main --threshold 0` gives `error: --threshold must be 1 or more`
 
 ## Automated run
 - Command: `python -m pytest -q`
-- Total: 319
-- Passed: 319
+- Total: 326
+- Passed: 326
 - Failed: 0
 - Errors: 0
 - Skipped: 0
 
-(Same counts locally on Python 3.14.7 and in CI on Python 3.11.)
+(Local run on Python 3.14.7. The last CI run was at 319 tests, before the extreme-stress fixes.)
 
 ## Edge-case evidence
 
@@ -42,15 +43,19 @@
 | 11 | All 264 dataset events replayed | Balance never negative, ledger adds up to the balance, no duplicate IDs | true for every account | `test_dataset_reward_events_keep_ledger_consistent` |
 | 12 | Threshold `None` or `"2"` with 2 matching transactions (ambiguity fix) | Falls back to default 2, so no alert; a 3rd one alerts | `[]`, then 1 group | `test_invalid_threshold_falls_back_to_default` |
 | 13 | The same `transaction_id` row sent 3 times (ambiguity fix) | Counted once, so no alert | `[]` | `test_same_transaction_id_is_not_counted_as_a_repeat` |
+| 14 | Refund of 50000 on an account whose balance is already −5 (extreme stress fix) | Takes nothing back; a refund never adds points | balance stays −5, `points_delta` 0 | `test_refund_never_adds_points_to_a_negative_balance` |
+| 15 | Account passed as `None`, `[]`, `"A"` or `5` (extreme stress fix) | Treated as a new, empty account, the same as `{}` | balance 10, 1 ledger line | `test_non_dict_account_is_treated_as_empty` |
+| 16 | Alert rows whose `transaction_id` is `[]` or `{}` | Skipped, like events with list/dict IDs | 3 IDs counted, not 5 | `test_unhashable_transaction_id_rows_are_skipped_in_alerts` |
+| 17 | One alert group of 100,000 rows plus 1,000 resent rows (extreme stress fix) | One alert with count 100,000, finishing quickly | under 2 s (40,000 rows: 0.01 s now, 4.18 s with the old list check) | `test_one_huge_repeat_group_stays_fast` |
 
 ## Regression tests added
 All of these are in `tests/test_regressions.py`:
 - Rounding / cap 0 / bad rules: `test_invalid_rule_values_award_zero`, `test_non_integer_amount_awards_zero`, `test_bonus_over_100_percent_then_cap`
 - Duplicates: `test_second_capture_of_same_transaction_with_new_event_id_does_not_award_twice`, `test_duplicate_refund_event_is_applied_once`, `test_rejected_event_id_can_be_retried_with_valid_data`
-- Missing IDs / bad amounts: `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_invalid_purchase_amount_creates_no_transaction`
-- Refund limits: `test_cumulative_refunds_cannot_exceed_purchase`, `test_partial_refunds_sum_to_full_reversal`, `test_balance_never_negative_even_if_account_already_low`
+- Missing IDs / bad amounts: `test_event_missing_identifier_is_ignored`, `test_unhashable_identifier_is_ignored_not_crashing`, `test_invalid_purchase_amount_creates_no_transaction`, `test_non_dict_account_is_treated_as_empty`
+- Refund limits: `test_cumulative_refunds_cannot_exceed_purchase`, `test_partial_refunds_sum_to_full_reversal`, `test_balance_never_negative_even_if_account_already_low`, `test_refund_never_adds_points_to_a_negative_balance`
 - Ledger: `test_ledger_entries_are_auditable_and_sum_to_balance`, `test_dataset_reward_events_keep_ledger_consistent`
-- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_list_alert_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_invalid_threshold_falls_back_to_default`, `test_same_transaction_id_is_not_counted_as_a_repeat`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_dataset_repeat_groups_are_flagged`
+- Repeat alerts: `test_empty_input_gives_no_alerts`, `test_non_list_alert_input_gives_no_alerts`, `test_non_positive_threshold_is_treated_as_one`, `test_invalid_threshold_falls_back_to_default`, `test_same_transaction_id_is_not_counted_as_a_repeat`, `test_rows_missing_keys_are_not_grouped`, `test_unhashable_alert_keys_are_skipped_not_crashing`, `test_alert_order_is_deterministic_and_marked_for_review`, `test_alert_transaction_ids_do_not_depend_on_input_order`, `test_unhashable_transaction_id_rows_are_skipped_in_alerts`, `test_one_huge_repeat_group_stays_fast`, `test_dataset_repeat_groups_are_flagged`
 
 Stretch item tests, in `tests/test_threshold_config.py`: `test_threshold_read_from_config`, `test_missing_or_invalid_config_falls_back_to_default`, `test_dataset_threshold_matches_default_result`, `test_raising_threshold_reduces_alerts`, `test_cli_threshold_default_and_override`, `test_cli_threshold_one_flags_sample_pair`, `test_cli_rejects_invalid_threshold`.
 
@@ -58,10 +63,15 @@ I didn't edit, skip or delete any existing test, and I didn't change the CI work
 
 I also added `tests/test_stress.py` (34 tests). Instead of one hand-picked example, each test generates thousands of random inputs from a fixed seed and checks rules that should always hold: points match a second calculation written a different way, spending more never earns fewer points, the balance is never negative and always equals the ledger total, sending an event twice changes nothing, split refunds always end at 0, junk input never crashes, and shuffling transactions gives the same alerts. This is what found the list/dict crash (case 10) and the ID-order issue (`test_alert_transaction_ids_do_not_depend_on_input_order`).
 
+Extreme stress run (from a scratch folder, not committed): 10,562 tests in about 4 minutes. It compares 3 million points calculations with the brief's formula worked out with exact fractions, replays 3,000 random event streams (resends, reused IDs, out-of-order and split refunds, junk) and checks the whole account against a separate reference model after every event, replays the dataset shuffled with each event sent 1–3 times, and compares 4,500 random alert inputs with a second implementation. All of it passed. A separate probe script with deliberately broken inputs found the problems behind cases 14, 15 and 17, and its timing run measured 8,000 purchases into one account at 45.4 s (see `optimizations.md`). After the fixes, the extreme run still passes 10,562/10,562 and my 3,004-test extended run passes too.
+
 ## Remaining failures or limitations
 - No failing tests.
 - Amount-0 transactions are left out of repeat alerts (48 groups on the dataset instead of 60). That's my assumption, not something the tests require.
 - A threshold that isn't a whole number (`None`, `"2"`, `1.5`) falls back to the default of 2; 0 or negative counts as 1.
 - The same `transaction_id` appearing twice in one group is counted once.
 - Numbers sent as strings, like `"100000"`, are rejected, not converted.
-- If points were already spent, a refund only takes back what's left in the balance.
+- If points were already spent, a refund only takes back what's left in the balance. If the balance is already negative, it takes nothing back.
+- A missing or non-dict account (`None`, `[]`, a string) counts as a new, empty account.
+- Alert rows whose `transaction_id` is a list or dict are skipped.
+- `test_one_huge_repeat_group_stays_fast` has a 2 s time limit. The call takes about 0.01–0.1 s, so only a very slow machine could fail it.

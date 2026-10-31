@@ -49,11 +49,11 @@ A second refund, `EV-3` of 159900 paise, makes the total 259900 (the full purcha
 
 ## 4. Assumptions and limitations
 - **Rounding:** always round down. That applies to the full ₹100s, the bonus, and the refund points. The cap goes on after the bonus. Refund points are worked out from the running total, so a full refund always takes back everything.
-- **Missing fields:** events with no `event_id` or `transaction_id`, or an amount that isn't a positive whole number, are ignored and not marked as processed, so a fixed version can be sent again. If a rule is missing, the defaults are 1 point per ₹100, 0% bonus and no cap.
+- **Missing fields:** events with no `event_id` or `transaction_id`, or an amount that isn't a positive whole number, are ignored and not marked as processed, so a fixed version can be sent again. If a rule is missing, the defaults are 1 point per ₹100, 0% bonus and no cap. A missing or non-dict account (`None`, `[]`, a string) counts as a new, empty account.
 - **Event types:** only `purchase_captured` and `refund_processed` (exact spelling) change the account. Declined, pending or unknown events do nothing.
 - **Repeat alerts:**
   - A group alerts when it has *more than* `threshold` transactions with the same account, date and amount. A threshold below 1 counts as 1, and a threshold that isn't a whole number (`None`, `"2"`) falls back to the default of 2. The same `transaction_id` appearing twice in a group is counted once.
   - The threshold can be changed (stretch item): the default is 2, it can come from `repeat_alert_threshold` in a config dict, or you can use `python -m main --threshold N`.
-  - Rows with missing fields or amount ≤ 0 are skipped, which gives 48 alert groups on `data/records.json`.
+  - Rows with missing fields, amount ≤ 0, or a list/dict account, date or `transaction_id` are skipped, which gives 48 alert groups on `data/records.json`.
   - Alerts are marked `needs_review` and never block a payment.
-- **Not handled:** spent points aren't tracked (refunds only take back what's in the balance), and amounts sent as strings are rejected rather than converted.
+- **Not handled:** spent points aren't tracked (refunds only take back what's in the balance, and nothing if the balance is already negative), and amounts sent as strings are rejected rather than converted.

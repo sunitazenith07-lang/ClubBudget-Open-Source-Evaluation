@@ -42,7 +42,8 @@ def _ledger_entry(out: dict, event: dict, points_delta: int) -> dict:
 
 def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
     """Return a new account with the event applied; rejected events change nothing."""
-    out=deepcopy(account); out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
+    out=deepcopy(account) if isinstance(account, dict) else {}  # None or junk counts as a new, empty account
+    out.setdefault('points_balance',0); out.setdefault('processed_event_ids',[]); out.setdefault('transactions',{}); out.setdefault('ledger',[])
     if not isinstance(event, dict) or not isinstance(rules, dict):
         return out
     event_id=event.get('event_id'); kind=event.get('type'); txn_id=event.get('transaction_id'); amount=event.get('amount_paise')
@@ -66,7 +67,7 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
             return out  # unknown purchase or over-refund
         txn['refunded_paise']+=amount
         should_reverse=txn['awarded_points']*txn['refunded_paise']//txn['amount_paise']
-        delta=min(should_reverse-txn['reversed_points'], out['points_balance'])
+        delta=max(0, min(should_reverse-txn['reversed_points'], out['points_balance']))  # a refund never adds points
         txn['reversed_points']+=delta
         out['points_balance']-=delta
         delta=-delta
@@ -98,13 +99,11 @@ def flag_repeat_transactions(transactions: list[dict], threshold: int=DEFAULT_RE
     for tx in transactions:
         if not isinstance(tx, dict):
             continue
-        key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise'))
-        if key[0] is None or key[1] is None or not _is_int(key[2]) or key[2] <= 0 or tx.get('transaction_id') is None:
+        key=(tx.get('account_id'),tx.get('date'),tx.get('amount_paise')); txn_id=tx.get('transaction_id')
+        if key[0] is None or key[1] is None or not _is_int(key[2]) or key[2] <= 0 or txn_id is None:
             continue
-        if not _is_hashable(key):
+        if not (_is_hashable(key) and _is_hashable(txn_id)):
             continue
-        ids=groups.setdefault(key,[])
-        if tx.get('transaction_id') not in ids:
-            ids.append(tx.get('transaction_id'))  # count each id once
+        groups.setdefault(key,set()).add(txn_id)  # a set counts each id once, fast even for huge groups
     return [{'account_id':k[0],'date':k[1],'amount_paise':k[2],'transaction_ids':sorted(ids,key=str),'count':len(ids),'status':'needs_review'}
             for k,ids in sorted(groups.items(),key=lambda item:(str(item[0][0]),str(item[0][1]),item[0][2])) if len(ids)>threshold]

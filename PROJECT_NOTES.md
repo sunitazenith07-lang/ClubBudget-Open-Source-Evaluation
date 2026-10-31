@@ -17,13 +17,15 @@ all 8. the list:
 
 also did an "ambiguity fix" at the end. two alert things weren't wrong exactly but were weird: a junk threshold like `None` became 1 (so more alerts, not fewer), and the same transaction sent 3 times counted as a repeat of itself. now junk falls back to 2 and each id counts once.
 
+then i ran an "extreme" stress test (10k+ random tests plus a script that throws broken stuff at the code). it found 3 more things: a refund on an account that was already negative *added* points (lol), passing `None` as the account crashed, and one giant alert group of 40k rows took 4 seconds because of my own duplicate check. all fixed. refunds never add points now, a non-dict account just counts as a new empty one, and the ids go in a set, so that's 0.01s now.
+
 also did the stretch thing. the threshold is configurable now: `python -m main --threshold N`, or `repeat_alert_threshold` in the config. default is still 2.
 
 ## Files changed
 
 - `service.py`: basically all the actual fixes are here
 - `main.py`: added the `--threshold` option. that's it
-- `tests/test_regressions.py`: new, 56 tests for the fixes
+- `tests/test_regressions.py`: new, 63 tests for the fixes
 - `tests/test_threshold_config.py`: new, 15 tests for the threshold thing
 - `tests/test_stress.py`: new, 34 tests that throw thousands of random inputs at the code
 - `approach.md`, `challenges.md`, `optimizations.md`, `TESTING.md`, `REWARD_RULE_NOTES.md`: the required docs
@@ -40,7 +42,9 @@ didn't touch any of the original tests or the CI file. not allowed to, and didn'
 - `"100000"` as a string gets rejected, not converted. safer i guess
 - a threshold below 1 just counts as 1. junk like `None` or `"2"` uses the default 2 instead
 - if the same transaction id shows up twice in a group it only counts once. a duplicated row isn't a repeat payment
-- if an ID is a list or dict (it happens in bad json), the event gets skipped instead of crashing. found this one with the stress tests
+- if an ID is a list or dict (it happens in bad json), the event gets skipped instead of crashing. found this one with the stress tests. same for alert rows
+- if the balance is already negative, a refund takes nothing back. it never adds points
+- `None` (or anything that isn't a dict) as the account counts as a new empty account, same as `{}`
 
 ## Tests and results
 
@@ -51,10 +55,11 @@ didn't touch any of the original tests or the CI file. not allowed to, and didn'
 - after adding the stress tests: `311 passed` locally (python 3.14.7)
 - after making the alert function return `[]` for non-list input (it crashed on a plain number): `314 passed`
 - after fixing junk thresholds (they now fall back to 2) and not counting the same transaction id twice: `319 passed`
-- CI on github (python 3.11): `319 passed, 0 failed`. run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
+- after the extreme stress fixes: `326 passed`
+- CI on github (python 3.11, before the extreme fixes): `319 passed, 0 failed`. run: https://github.com/madhavmongaa/RewardBook-Open-Source-Evaluation/actions/runs/41141776545
 - `python -m main` prints `Points example: 27` (the old one said 28, which was wrong)
 
-edge cases are in `TESTING.md` if you want them. there are 13.
+edge cases are in `TESTING.md` if you want them. there are 17.
 
 ## Limitations and next steps
 
