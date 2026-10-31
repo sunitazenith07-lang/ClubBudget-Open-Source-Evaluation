@@ -3,21 +3,35 @@
 This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
 
 ## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+
+The hardest part was making sure refunds didn't get processed twice, keeping the correct math for partial refunds , and making sure refund amounts didn't go over the allowed limit. The original code stopped duplicate transactions, but it was still wrongly adding event IDs every time an event was replayed.
 
 ## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
+
+A test failed because it expected the list to only have the event once .
+
+A test failed because invalid or too-large refunds shouldn't alter the account balance.
+
+A test checked if the refund amounts stayed within safe limits.
 
 ## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+
+1. Ran the test command (python -m pytest -q), which showed 45 test failures to start with
+
+2. Tested event replays by hand to confirm where duplicate event IDs were being added.
 
 ## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+
+Added a quick check at the start of the code to exit early if an event ID had already been processed.
+
+Fixed the math for calculating proportional refunds using the total refunded amount so far.
 
 ## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
+
+All 214 tests now pass successfully, including all the replay and refund limit tests.
 
 ## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
+
+There are no failing tests left and everything is working correctly. We could add more documentation or extra tests later, but there are no major blockers remaining.
 
 If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.

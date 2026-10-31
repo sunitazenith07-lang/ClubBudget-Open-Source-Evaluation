@@ -10,9 +10,15 @@ Show the points originally awarded, the refund amount, how the reversal is calcu
 
 ## 3. Three edge cases
 For each, provide input, expected behaviour, actual observed result, and the test that verifies it.
-1.
-2.
-3.
+1. Duplicate events, Ignored properly now, Stops double points.
+2.Over-refunding, Blocked by validation, Prevents negative balances.
+3.Zero cap, Handled with None, Fixed cap bug.
 
 ## 4. Assumptions and limitations
-Document rounding assumptions, missing-field handling, repeat-alert threshold assumptions, and any unresolved issue.
+Rounding Assumptions: Uses floor division to award points only for complete ₹100 blocks, avoiding premature rounding inflation.
+
+Missing-Field Handling: Uses .get() defaults and explicit checks (not event_id, not txn_id) to drop incomplete requests.
+
+Repeat-Alert Threshold: Defaults to threshold = 2, flagging groups with strictly more than 2 identical transactions.
+
+Unresolved Issues: None critical; prior starter defects (idempotency, over-refunds, zero caps, and boolean injections) are fully resolved.

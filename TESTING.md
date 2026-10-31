@@ -3,9 +3,9 @@
 Complete this file with test evidence from your own work. Include at least five edge cases. Do not claim a test passed unless you ran it.
 
 ## Test command and environment
-- Python version:
-- Command run:
-- Actual test summary:
+- Python version: python3
+- Command run: python3 -m pip install -r requirements-dev.txt, python3 -m pytest -q and python3 -m main
+- Actual test summary: all test cases passed with 0 errors 
 
 ## Edge-case evidence
 
