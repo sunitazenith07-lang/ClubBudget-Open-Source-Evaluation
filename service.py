@@ -32,7 +32,6 @@ def apply_reward_event(account: dict, event: dict, rules: dict) -> dict:
     out['processed_event_ids'].append(event_id)
     return out
 
-
 def flag_repeat_transactions(transactions: list[dict], threshold: int=2) -> list[dict]:
     groups={}
     for tx in transactions:
