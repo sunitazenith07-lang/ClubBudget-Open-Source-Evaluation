@@ -1,0 +1,190 @@
+================================================================================
+REWARDBOOK - COMPLETE CODE CHANGES & DEBUGGING EXPLANATION (HINGLISH)
+================================================================================
+
+1. PROJECT KA OVERVIEW (PROJECT KYA HAI?)
+--------------------------------------------------------------------------------
+Ye project "RewardBook" ek Fintech Loyalty Rewards System hai.
+Isme basic requirements ye thi:
+- Purchase par integer arithmetic se loyalty points calculate karna.
+- Promotional bonus percent aur points cap apply karna.
+- Agar koi transaction refund ho, to proportionally points reverse karna (kabhi bhi awarded se zyada reverse na ho aur balance negative na ho).
+- Idempotency ensure karna: agar same event dubara aaye (replay), to balance dubara change na ho aur ledger me duplicate entry na bane.
+- Unrecognized ya declined transactions par points na dena.
+- Same account, date aur amount par repeat hone wale transactions ko flag karna (operations review ke liye).
+- Safe boundary handling (negative values, boolean, strings, missing IDs).
+
+
+2. BASELINE KYA THA (SHURUAT ME CODE KA KYA STATUS THA?)
+--------------------------------------------------------------------------------
+Jab maine starter code inspect kiya aur baseline test run kiya:
+- Command: python -m pytest -q
+- Result: 67 FAILED, 147 PASSED in 0.84s (Total: 214 tests).
+  Matlab starter code me 67 test cases fail ho rahe the!
+- Demo command: python -m main
+  Result: "Points example: 28" (jo galat tha, integer floor ke mutabiq 27 hona chahiye tha).
+
+
+3. KYA KYA BUGS THE AUR UNHE KAISE DEBUG & FIX KIYA?
+--------------------------------------------------------------------------------
+
+BUG #1: Points Calculation me Rounding aur Cap Zero ka Issue (service.py me calculate_points)
+-----------------------------------------------------------------------------------------------
+* Root Cause / Problem:
+  1. Starter code me round() use ho raha tha:
+     `base = round(amount_paise / 10000) * points_per_100_rupees`
+     Isse 19,999 paise (Rs 199.99) round hokar 2 points ban raha tha, jabki rule kehta hai
+     ke integer floor division hona chahiye: 19999 // 10000 = 1 point!
+  2. Cap Zero bug:
+     Starter code me likha tha:
+     `if cap_points:`
+     `    points = min(points, cap_points)`
+     Python me 0 'falsy' hota hai! Jab kisi rule me cap_points = 0 pass kiya gaya, to
+     Python ne `if cap_points:` ko False maan kar ignore kar diya aur poore points de diye!
+     Rule kehta hai: "A cap of zero means zero points."
+  3. Negative aur Boolean Types:
+     Negative amount ya negative rules par 0 points aane chahiye the. Aur Python me
+     `bool` class `int` ki subclass hoti hai (`isinstance(True, int)` is True), to boolean
+     values integer validation ko bypass kar rahi thi.
+
+* Humne kya Fix kiya:
+  1. Rounding hata kar integer floor division lagaya:
+     `base = (amount_paise // 10000) * points_per_100_rupees`
+     `points = base * (100 + bonus_percent) // 100`
+  2. Explicit check lagaya:
+     `if cap_points is not None:`
+     `    points = min(points, cap_points)`
+     Aur agar cap_points <= 0 ho to 0 return kiya.
+  3. Strict type validation lagayi:
+     `if isinstance(amount_paise, bool) or not isinstance(amount_paise, int) or amount_paise <= 0: return 0`
+     Isse boolean, negative, string, floats sab securely reject ho gaye.
+
+
+BUG #2: Idempotency aur Replay Defect (service.py me apply_reward_event)
+-----------------------------------------------------------------------------------------------
+* Root Cause / Problem:
+  Starter code me event check kiye bina seedha process kar deta tha aur function ke end me:
+  `out['processed_event_ids'].append(event_id)`
+  Agar same event dubara bhej diya jaye (event replay), to starter code usko firse process
+  kar deta tha, points dobara jud/ghat jaate the, aur processed_event_ids me ['E1', 'E1']
+  duplicate entry ban jaati thi.
+
+* Humne kya Fix kiya:
+  Function ke start me hi early return guard lagaya:
+  ```python
+  if not event_id or not isinstance(event_id, str):
+      return out
+  if event_id in out['processed_event_ids']:
+      return out
+  ```
+  Agar event_id pehle se process ho chuka hai, to function turant return ho jata hai
+  bina account ko mutate kiye ya ledger me duplicate daale. Isse purchase aur refund dono
+  ki replay idempotency 100% guarantee ho gayi.
+
+
+BUG #3: Refund Bounds aur Cumulative Integer Reversal Drift (service.py me refund_processed)
+-----------------------------------------------------------------------------------------------
+* Root Cause / Problem:
+  1. Refund validation nahi thi: Agar refund amount negative ho (-1), zero ho, ya purchase
+     amount se bada ho (150,000 paise on 100,000 paise purchase), to bhi starter code usko
+     accept kar leta tha aur balance bigaad deta tha.
+  2. Truncation Loss / Drift across Multiple Partial Refunds:
+     Agar kisi transaction par 15 points award hue the (e.g. Rs 1000 with 50% bonus), aur
+     customer ko do baar 50%-50% partial refund mila:
+     - Incremental calculation: (15 * 50000) // 100000 = 7 points.
+     - Second refund: (15 * 50000) // 100000 = 7 points.
+     Total reversed = 7 + 7 = 14 points!
+     Poora 100% refund hone ke baad bhi account me 1 point orphaned reh jaata tha!
+
+* Humne kya Fix kiya:
+  1. Strict input validation lagayi:
+     ```python
+     if isinstance(refund, bool) or not isinstance(refund, int) or refund <= 0:
+         return out
+     if txn['refunded_paise'] + refund > txn['amount_paise']:
+         return out
+     ```
+  2. Cumulative Reversal tracking formula implement kiya:
+     Har transaction me `refunded_paise` aur `reversed_points` track kiya.
+     `new_refunded = txn['refunded_paise'] + refund`
+     `should_reverse = (txn['awarded_points'] * new_refunded) // txn['amount_paise']`
+     `delta = max(0, should_reverse - txn['reversed_points'])`
+     Ab dekho:
+     - First 50% refund: should_reverse = (15 * 50000) // 100000 = 7. Delta = 7.
+     - Second 50% refund: should_reverse = (15 * 100000) // 100000 = 15. Delta = 15 - 7 = 8!
+     Total points reversed = 7 + 8 = 15 points! Exact 100% points reverse hue, zero drift!
+  3. Balance Non-negativity check:
+     `delta = min(delta, max(0, out['points_balance']))`
+     Isse balance kabhi bhi negative nahi ja sakta.
+
+
+BUG #4: Declined aur Unknown Events
+-----------------------------------------------------------------------------------------------
+* Problem:
+  Agar event ka type `purchase_declined`, `purchase_pending`, `unknown_event` ya `PURCHASE_CAPTURED`
+  (uppercase) ho, to points nahi milne chahiye the.
+* Fix:
+  Code me strictly sirf `purchase_captured` aur `refund_processed` ko execute kiya.
+  Baaki saare invalid/declined types par safe return kar diya without altering balance or ledger.
+
+
+OPTIONAL STRETCH FEATURE: CSV Account Statement
+-----------------------------------------------------------------------------------------------
+* Problem statement me optional stretch task tha ("generate a CSV account statement").
+* Humne `generate_account_statement_csv(account)` function implement kiya jo account ke ledger
+  se clean CSV format generate karta hai:
+  `event_id,type,points_delta,balance`
+  aur running balance compute karta hai single pass me.
+
+
+4. REGRESSION TESTING (HUMNE KYA TEST CASES ADD KIYE?)
+--------------------------------------------------------------------------------
+Humne `tests/test_regression.py` file create ki jisme 7 comprehensive test functions likhe:
+1. `test_sequential_partial_refunds_no_rounding_drift`:
+   Check karta hai ki do 50% partial refunds exactly 7 aur 8 points reverse karein (total 15), aur final balance 0 ho.
+2. `test_refund_replay_is_idempotent`:
+   Check karta hai ki refund event replay karne par balance dubara minus na ho aur ledger duplicate na ho.
+3. `test_points_balance_never_negative`:
+   Check karta hai ki reversal ke waqt points balance kabhi negative na ho sake.
+4. `test_cumulative_excess_refund_rejected`:
+   Check karta hai ki valid refund ke baad agar agla refund total purchase amount se zyada ho jaye, to reject ho.
+5. `test_malformed_event_fields_safe_handling`:
+   Check karta hai ki boolean (`True`), strings, null rules, aur missing IDs par koi crash na ho.
+6. `test_full_synthetic_dataset_integration`:
+   `data/records.json` ke saare 40 accounts, 264 reward events aur 180 repeat records ko load karke process karta hai
+   aur check karta hai ki:
+   - Koi account negative balance me na jaye.
+   - Har account ka ledger sum exact points_balance ke barabar ho.
+   - Repeat transaction alerts sahi format me generate ho.
+7. `test_generate_account_statement_csv`:
+   CSV statement generation ka test.
+
+
+5. FINAL RESULTS & EVIDENCE
+--------------------------------------------------------------------------------
+- Test Suite Command: `python -m pytest -q`
+- Baseline Result: `67 failed, 147 passed in 0.84s`
+- Final Result: `221 passed in 0.16s` (100% Pass rate, 0 failed, 0 errors, 0 skipped).
+- Demo Output: `python -m main`
+  -> `Points example: 27` (Pehle galat 28 tha, ab correct 27 hai)
+  -> `Repeat warnings: []`
+
+
+6. SUBMISSION DOCUMENTATION FILES JO HUMNE COMPLETE KI
+--------------------------------------------------------------------------------
+1. `approach.md` (5 marks):
+   Baseline test summary, codebase flow understanding, root causes, implementation strategy, aur verification proof likha.
+2. `challenges.md` (5 marks - Compulsory):
+   Integer truncation drift aur Python boolean type hierarchy ka real challenge, minimal examples, what we tried,
+   resolution, aur proof document kiya.
+3. `optimizations.md` (5 marks):
+   Floating-point vs Integer arithmetic, cumulative vs incremental tracking, trade-offs, aur 0.84s se 0.16s speedup record kiya.
+4. `TESTING.md`:
+   Python version (3.14.6), test counts, aur table me 6 edge cases (boundary paise, zero cap, replay, partial refund,
+   excess refund, balance non-negativity) detail me daale.
+5. `REWARD_RULE_NOTES.md`:
+   Worked points calculation (259,900 paise -> 27 pts), partial refund example (15 pts -> 7 then 8 pts reversed),
+   aur assumptions likhe.
+6. `ARCHITECTURE_TEMPLATE.md`, `PROJECT_NOTES_TEMPLATE.md`, `TESTING_TEMPLATE.md`, `AI_USAGE_TEMPLATE.md`:
+   Saare required templates ko detailed aur professional content ke saath fill kar diya.
+================================================================================
