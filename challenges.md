@@ -54,7 +54,7 @@ The latest test run was:
 
 Actual result:
 
-`214 passed, 0 failed`
+`218 passed, 0 failed, 0 failed`
 
 Relevant tests include:
 

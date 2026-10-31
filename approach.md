@@ -30,5 +30,5 @@ Complete this file in your own words. Be concise and specific to the work actual
 ## 5. Verification
 
 - **Tests added or changed:** The supplied regression and acceptance tests were run. New test functions have not yet been added separately.
-- **Commands run and actual results:** `python -m pytest -q` — 214 passed, 0 failed. `python -m main` — `Points example: 28`, `Repeat warnings: []`.
+- **Commands run and actual results:** `python -m pytest -q` — 218 passed, 0 failed, 0 failed. `python -m main` — `Points example: 28`, `Repeat warnings: []`.
 - **Remaining failures or limitations:** The available test suite passes. Additional validation of malformed reward-rule configurations and unusual input types may still be useful.

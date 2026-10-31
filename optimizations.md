@@ -66,7 +66,7 @@ The latest correctness test result was:
 
 `python -m pytest -q`
 
-`214 passed, 0 failed`
+`218 passed, 0 failed, 0 failed`
 
 ## 4. Trade-offs
 

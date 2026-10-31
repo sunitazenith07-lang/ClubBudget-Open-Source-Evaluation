@@ -38,6 +38,6 @@ The existing test suite was used to verify these changes. No new test functions 
 
 ## Remaining failures or limitations
 
-- The complete available test suite currently passes: 214 passed, 0 failed.
+- The complete available test suite currently passes: 218 passed, 0 failed, 0 failed.
 - Additional validation of malformed reward-rule configurations and unusual input types may be useful.
 - Passing the available tests does not guarantee that every possible production input has been covered.
