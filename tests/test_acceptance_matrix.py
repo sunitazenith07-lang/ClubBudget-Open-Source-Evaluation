@@ -142,3 +142,100 @@ def test_repeat_alert_threshold_input_is_handled(threshold):
     rows = [{"transaction_id":str(i),"account_id":"A","date":"D","amount_paise":1000} for i in range(4)]
     result = flag_repeat_transactions(rows, threshold)
     assert isinstance(result, list)
+
+
+def test_invalid_point_inputs_and_rules_award_nothing():
+    assert calculate_points(True, 1) == 0
+    assert calculate_points(10000, 1, bonus_percent=-1) == 0
+    assert calculate_points(10000, -1) == 0
+    assert calculate_points(10000, 1, cap_points=-1) == 0
+    assert calculate_points(10000, 1, cap_points=1.5) == 0
+
+
+def test_refund_event_replay_is_idempotent():
+    rules = {"points_per_100_rupees":1}
+    account = apply_reward_event(
+        new_account("A"),
+        {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000},
+        rules,
+    )
+    refund = {"event_id":"R","type":"refund_processed","transaction_id":"T","amount_paise":50000}
+    once = apply_reward_event(account, refund, rules)
+    replay = apply_reward_event(once, refund, rules)
+    assert replay["points_balance"] == 5
+    assert replay["transactions"]["T"]["refunded_paise"] == 50000
+    assert replay["processed_event_ids"] == ["P", "R"]
+    assert len(replay["ledger"]) == 2
+
+
+def test_cumulative_refunds_cannot_exceed_purchase_amount():
+    rules = {"points_per_100_rupees":1}
+    account = apply_reward_event(
+        new_account("A"),
+        {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":100000},
+        rules,
+    )
+    partial = apply_reward_event(
+        account,
+        {"event_id":"R1","type":"refund_processed","transaction_id":"T","amount_paise":60000},
+        rules,
+    )
+    excess = apply_reward_event(
+        partial,
+        {"event_id":"R2","type":"refund_processed","transaction_id":"T","amount_paise":50000},
+        rules,
+    )
+    completed = apply_reward_event(
+        excess,
+        {"event_id":"R3","type":"refund_processed","transaction_id":"T","amount_paise":40000},
+        rules,
+    )
+    assert excess["transactions"]["T"]["refunded_paise"] == 60000
+    assert completed["transactions"]["T"]["refunded_paise"] == 100000
+    assert completed["transactions"]["T"]["reversed_points"] == 10
+    assert completed["points_balance"] == 0
+
+
+def test_missing_event_identifier_does_not_apply_purchase():
+    account = apply_reward_event(
+        new_account("A"),
+        {"type":"purchase_captured","transaction_id":"T","amount_paise":100000},
+        {"points_per_100_rupees":1},
+    )
+    assert account["points_balance"] == 0
+    assert account["transactions"] == {}
+    assert account["ledger"] == []
+
+
+def test_purchase_does_not_preserve_a_negative_account_balance():
+    account = new_account("A")
+    account["points_balance"] = -5
+    result = apply_reward_event(
+        account,
+        {"event_id":"P","type":"purchase_captured","transaction_id":"T","amount_paise":10000},
+        {"points_per_100_rupees":1},
+    )
+    assert result["points_balance"] == 1
+
+
+def test_repeat_alert_skips_malformed_rows_and_duplicate_transaction_ids():
+    rows = [
+        {"transaction_id":"1","account_id":"A","date":"D","amount_paise":1000},
+        {"transaction_id":"1","account_id":"A","date":"D","amount_paise":1000},
+        {"account_id":"A","date":"D","amount_paise":1000},
+        {"transaction_id":"2","account_id":"A","date":"D","amount_paise":1000},
+        None,
+    ]
+    assert flag_repeat_transactions(rows, threshold=2) == []
+
+
+def test_zero_repeat_threshold_flags_a_single_valid_transaction():
+    rows = [{"transaction_id":"1","account_id":"A","date":"D","amount_paise":1000}]
+    assert flag_repeat_transactions(rows, threshold=0) == [
+        {
+            "account_id":"A",
+            "date":"D",
+            "amount_paise":1000,
+            "transaction_ids":["1"],
+        }
+    ]
