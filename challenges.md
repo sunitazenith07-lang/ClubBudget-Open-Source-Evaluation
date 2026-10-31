@@ -1,23 +1,36 @@
-# challenges.md - COMPULSORY submission
+# Debugging notes
 
-This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
+> **AI-use disclosure:** AI assistance was used with evaluator permission, as confirmed by the requester. See [AI_USAGE.md](AI_USAGE.md) for details.
 
-## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+## 1. Issue investigated
+
+The tricky behavior was applying multiple partial refunds without reversing too many points or allowing the same refund event to apply more than once.
 
 ## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
 
-## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+The baseline had **67 failed and 147 passed**. Failing cases included `test_invalid_or_excess_refund_ignored` and parametrized refund bounds in `test_acceptance_matrix.py`. The synthetic dataset also includes missing event IDs and refund amounts with types such as float, list, bool, string, and dict.
 
-## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+## 3. Investigation performed
+
+- Read the refund calculation and compared it with the acceptance tests and the written problem contract.
+- Ran the baseline suite and demo from the project directory.
+- Checked the shape and malformed-value types in `data/records.json`.
+- Added regression cases for duplicate refund replay, cumulative partial refunds, invalid values, and missing IDs.
+
+## 4. Root cause and resolution
+
+The original refund path added the refund amount without checking the remaining refundable amount, and it did not use processed IDs to block replay. Validation now rejects invalid or excessive refunds, event IDs are checked before processing, and point reversals are calculated proportionally using integer arithmetic, bounded by the awarded points and current balance.
 
 ## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
 
-## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
+The final suite passed **221 tests**. In particular:
 
-If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.
+- `test_refund_event_replay_is_idempotent` checks that replay leaves balance, refund total, event IDs, and ledger length unchanged.
+- `test_cumulative_refunds_cannot_exceed_purchase_amount` checks a rejected over-refund followed by a valid remaining refund.
+- `test_zero_repeat_threshold_flags_a_single_valid_transaction` checks that validation did not accidentally change threshold-zero behavior.
+
+## 6. Limitations
+
+The function accepts dictionaries under its declared interface; arbitrary malformed account structures are not comprehensively normalized. Event IDs are marked processed before the event's type and payload are validated, so a later corrected payload using the same ID will be treated as a replay. Any change to that policy should be agreed with the event-delivery contract and covered by tests.
+
+No pull request or evaluator review has been completed.

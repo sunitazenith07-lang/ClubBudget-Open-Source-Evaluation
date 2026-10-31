@@ -1,23 +1,28 @@
-# optimizations.md - Required submission
+# Correctness and maintainability notes
 
-Document optimizations you considered or implemented. Do not claim a speedup or improvement unless you measured it.
+> **AI-use disclosure:** AI assistance was used with evaluator permission, as confirmed by the requester. See [AI_USAGE.md](AI_USAGE.md) for details.
 
 ## 1. Baseline and objective
-- What needed improvement (correctness, clarity, complexity, memory, repeated work, maintainability)?
-- What evidence suggested an improvement could help?
+
+The objective was correctness and safe handling of event data, not a measured speed improvement. Baseline tests reported **67 failed, 147 passed**. Failures covered floor rounding, zero caps, duplicate events, and refund bounds.
 
 ## 2. Options considered
-Describe each option's expected benefit and risk, including rejected ideas.
 
-## 3. Changes implemented
-- Change and reason:
-- Tests that protect correctness:
-- Measurement method and result (only if measured):
+- Integer arithmetic for points and proportional refunds: chosen because the business rules specify floor behavior and values are integral paise/points.
+- Floating-point arithmetic with rounding: rejected because it disagreed with the specified floor semantics and can introduce boundary errors.
+- Central validation helpers: chosen for repeated integer and identifier checks without adding a dependency.
+- Silently coercing strings/floats to integers: rejected because malformed financial amounts should not be reinterpreted as valid values.
+
+## 3. Changes and evidence
+
+- Implemented integer-floor point calculations, explicit optional-cap handling, input validation, replay protection, bounded cumulative refunds, and safer repeat grouping.
+- Added focused regression tests in `tests/test_acceptance_matrix.py`.
+- Final suite: **221 passed**. No before/after performance benchmark was run, so no speedup is claimed.
 
 ## 4. Trade-offs
-Explain trade-offs involving clarity, correctness, performance, memory, or maintainability.
 
-## 5. Further improvements
-What would you do next with more time, and how would you validate it?
+Input validation adds branches, but keeps malformed values from affecting balances. Returning zero for invalid points and ignoring invalid events follows the existing function style; a production system could instead return structured errors or emit monitoring events. The deep copy preserves the existing non-mutation behavior but copies the full account for each event.
 
-If you made no optimization change, state that honestly and compare at least two reasonable options. Correctness and maintainability take priority over unnecessary complexity.
+## 5. Further work
+
+With a clarified API contract, consider structured validation results and observability for rejected events. Benchmark the current deep-copy approach against an immutable or transactionally updated representation using realistic account sizes before changing it. Clarify whether invalid events should consume their event ID, then test the agreed replay policy.
