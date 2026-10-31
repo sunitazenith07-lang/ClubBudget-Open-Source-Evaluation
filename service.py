@@ -3,7 +3,7 @@ from copy import deepcopy
 
 def calculate_points(amount_paise: int, points_per_100_rupees: int, bonus_percent: int=0, cap_points: int|None=None) -> int:
     # Starter intentionally uses rounding and does not correctly apply every boundary rule.
-    base = round(amount_paise / 10000) * points_per_100_rupees
+    base = amount_paise // 10000 * points_per_100_rupees
     points = base * (100 + bonus_percent) // 100
     if cap_points:
         points = min(points, cap_points)
