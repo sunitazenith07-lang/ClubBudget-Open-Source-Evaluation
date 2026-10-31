@@ -1,23 +1,19 @@
-# challenges.md - COMPULSORY submission
+# Challenges and debugging evidence
 
-This file is mandatory and worth 5 marks. Describe your actual experience honestly. Do not invent difficulties to fill the page.
+## Scope of this record
+The original author's debugging experience was not provided. This is an AI-assisted review of observable defects and checks, not a fabricated first-person account of obstacles.
 
-## 1. Challenge or confusing behaviour
-What specific calculation, event, test failure, refund rule, ledger entry, or repeat-alert case was difficult to understand?
+## Tricky boundary: cumulative partial refunds
+A 100,000-paise purchase awards 10 points. Refunding 60,000 reverses 6; a subsequent 50,000 refund must be rejected because the cumulative total would exceed the purchase. `test_multiple_partial_refunds_cannot_exceed_purchase` passes and leaves refunded paise at 60,000 and balance at 4. The guard runs before updating totals. Refund replay is independently covered by `test_refund_event_once`.
 
-## 2. Evidence
-Summarize the relevant assertion, output, error, or minimal example. Do not include secrets or real customer data.
+## Calculation and replay evidence
+The reconstructed starter returned 2 for 19,999 paise at one point per 100 rupees; `test_points_use_floor` now passes with 1. A cap of zero previously returned 5 for 50,000 paise and now returns 0. Purchase replays formerly changed state or duplicated processed IDs; the acceptance matrix now passes all 20 replay cases.
 
-## 3. What I tried
-List the debugging steps or experiments you actually performed and what each one showed.
+## Review correction
+The fourth commit removed the reversed-points assertion from the existing partial-refund test. Documentation preparation restored that assertion; the suite still passes. This protects transaction audit state as well as the balance.
 
-## 4. Resolution
-What was the root cause? What did you change, and why did it fix the cause rather than hide the symptom?
+## Verification obstacles
+The default Windows Python launcher was unavailable. The bundled Python 3.12.14 runtime ran the demo, but initially lacked pytest. Dependencies were installed into ignored `.venv/test-deps`, then the suite ran successfully. The starter baseline was reproduced from a Git archive without changing the working branch.
 
-## 5. Proof and regression prevention
-Which test(s) demonstrate the fix? What related case could still break?
-
-## 6. Unresolved challenge or next step
-State remaining limitations and how you would investigate them next.
-
-If you did not encounter a major blocker, say so honestly and document the hardest edge case you deliberately tested and what it taught you. Do not manufacture a story.
+## Remaining limits
+No original pre-change test log was supplied. Visible tests do not prove every malformed account structure is safe. For example, unhashable identifiers are outside current validation. Accounts are assumed to follow `models.new_account`; concurrency and persistence are outside this offline service. No timing benchmark was run.
